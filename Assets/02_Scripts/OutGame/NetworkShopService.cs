@@ -25,25 +25,85 @@ public class NetworkShopService
     public void InitShopData()
     {
         var vm = GetShopViewModel();
-
         int slotIndex = 0;
 
-        foreach (var shopItem in DataManager.Instance._shopItemDataDic.Values)
+        // 1. 기존 슬롯 초기화 (빈 슬롯으로 세팅)
+        foreach (var slot in vm.ShopItemSlotList)
+        {
+            slot.IsSlotEmpty = true;
+        }
+
+        // 2. 고정으로 보여줄 기초 힐템 ID 목록 세팅 
+        // (실제 기획 데이터에 있는 힐템 ID로 변경해주세요. 예: "Consumable_Bandage")
+        List<string> fixedItemIds = new List<string> { "Item_Medical_Bandage", "Item_Food_Water" };
+
+        foreach (var fixedId in fixedItemIds)
         {
             if (slotIndex >= vm.ShopItemSlotList.Count) break;
 
-            SetShopItemSlot(vm.ShopItemSlotList[slotIndex], shopItem.ItemId, shopItem.StockCount);
+            // 고정 아이템 추가 (재고는 5개로 임의 설정)
+            SetShopItemSlot(vm.ShopItemSlotList[slotIndex], fixedId, 5);
             slotIndex++;
         }
 
+        // 3. 랜덤으로 등장할 후보군 ID 리스트 추출
+        List<string> randomCandidateIds = new List<string>();
+
+        // DataManager에 있는 실제 전체 아이템 딕셔너리 순회
+        foreach (var item in DataManager.Instance._itemDataDic.Values)
+        {
+            // 이미 고정으로 들어간 아이템은 후보군에서 제외
+            // BaseData를 상속받았으므로 ID 접근이 item.Id 또는 item.ItemId 일 수 있습니다.
+            if (fixedItemIds.Contains(item.Id)) continue;
+
+            // [핵심 필터링] ItemData.cs의 string ItemType을 기준으로 비교
+            // 기획 엑셀에 적으신 무기(Weapon), 소모품(Consumable) 등의 정확한 텍스트를 적어주세요.
+            if (item.ItemType == "Weapon" || item.ItemType == "Consumable")
+            {
+                // 만약 Consumable 중에 잡템이 섞여있다면 아래처럼 UseItemType 등을 추가로 검사할 수 있습니다.
+                // if (item.ItemType == "Consumable" && item.UseItemType != "Heal") continue;
+
+                randomCandidateIds.Add(item.Id);
+            }
+        }
+
+        // 4. 추출된 후보군 리스트 무작위 섞기 (셔플)
+        ShuffleList(randomCandidateIds);
+
+        // 5. 남은 상점 슬롯에 랜덤 아이템 채워넣기
+        int randomItemLimit = 5; // 상점에 띄울 랜덤 아이템의 최대 개수
+        int addedRandomCount = 0;
+
+        foreach (var randomId in randomCandidateIds)
+        {
+            // 상점 슬롯이 꽉 찼거나, 지정한 랜덤 개수를 다 채웠으면 종료
+            if (slotIndex >= vm.ShopItemSlotList.Count || addedRandomCount >= randomItemLimit) break;
+
+            // 랜덤 아이템 추가 (재고는 1개로 세팅)
+            SetShopItemSlot(vm.ShopItemSlotList[slotIndex], randomId, 1);
+            slotIndex++;
+            addedRandomCount++;
+        }
+
+        // 6. 플레이어 재화 및 인벤토리/창고 연동 (기존 로직 유지)
         PlayerModel playerData = SaveManager.Instance.LoadPlayerData();
         vm.CurPlayerCredit = playerData.CurrentCredit;
 
         var inventoryItems = InventoryManager.Instance.ItemList;
         LoadPlayerItemsToShopZone(new List<ItemModel>(inventoryItems), vm.InventoryItemSlotList);
-        //LoadPlayerItemsToShopZone(playerData.InventoryItems, vm.InventoryItemSlotList);
-
         LoadPlayerItemsToShopZone(playerData.StashItems, vm.StashItemSlotList);
+    }
+
+    // 리스트를 무작위로 섞어주는 유틸리티 메서드
+    private void ShuffleList<T>(List<T> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int rnd = UnityEngine.Random.Range(0, i + 1);
+            T temp = list[i];
+            list[i] = list[rnd];
+            list[rnd] = temp;
+        }
     }
 
     // 이하 상점UI내에서 일어난 데이터 변동을 UI가 닫히며 저장하고 동기화 시키는 메서드. 인벤토리에 데이터를 덮어씌우는 메서드(SyncInventoryFromUI) 추가 요청할 것.
@@ -55,26 +115,6 @@ public class NetworkShopService
         // 1. 변동된 크레딧 갱신
         playerData.CurrentCredit = vm.CurPlayerCredit;
 
-        // 2. 뷰모델 데이터 -> ItemModel 리스트로 변환 (인벤토리)
-        List<ItemModel> newInventory = new List<ItemModel>();
-        foreach (var slot in vm.InventoryItemSlotList)
-        {
-            if (!slot.IsSlotEmpty)
-            {
-                newInventory.Add(new ItemModel
-                {
-                    InstanceId = slot.ItemUniqueId,
-                    ItemId = slot.ItemDataId,
-                    CurrentStackCount = slot.ItemStackCount
-                });
-            }
-        }
-
-        // InventoryManager에 변경된 인벤토리 데이터 덮어쓰기
-        //playerData.InventoryItems = newInventory;
-        //InventoryManager.Instance.SyncInventoryFromUI(newInventory);
-
-        // 3. 뷰모델 데이터 -> ItemModel 리스트로 변환 (창고)
         List<ItemModel> newStash = new List<ItemModel>();
         foreach (var slot in vm.StashItemSlotList)
         {

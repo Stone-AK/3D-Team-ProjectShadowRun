@@ -87,10 +87,17 @@ public class PlayerSpawner : MonoBehaviour
     private void BindPlayerHUD(GameObject player)
     {
         PlayerStatus playerStatus = player.GetComponent<PlayerStatus>();
+        PlayerItemInteractor itemInteractor = player.GetComponent<PlayerItemInteractor>();
 
         if (playerStatus == null)
         {
             Debug.LogError("생성된 Player에 PlayerStatus가 없습니다.");
+            return;
+        }
+
+        if (itemInteractor == null)
+        {
+            Debug.LogError("생성된 Player에 PlayerItemInteractor가 없습니다.");
             return;
         }
 
@@ -110,5 +117,6 @@ public class PlayerSpawner : MonoBehaviour
         }
 
         hudView.BindViewModel(playerStatus.ViewModel);
+        hudView.BindItemInfoUI(itemInteractor);
     }
 }

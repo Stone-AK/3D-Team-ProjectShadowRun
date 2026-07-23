@@ -105,6 +105,21 @@ public class WeaponModel : ItemModel
     public List<ItemModel> AttachedParts;   // 장착된 파츠들
 }
 
+public interface InterfaceUseItem
+{
+    bool TryUseItem( UseableItem itemData );
+}
+
+[System.Serializable]
+public class UseableItem : ItemData
+{
+    public float HpPerVariation; // 초당 HP 변화량( Damage, Heal )
+    public float ReUseCoolTime; // 재사용 쿨타임
+    public float UseDelay; // 사용 대기 시간
+    public float Duration; // 사용 지속 시간
+
+}
+
 [System.Serializable]
 public class ShopItemData : BaseData 
 {

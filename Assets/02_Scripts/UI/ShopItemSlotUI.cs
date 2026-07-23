@@ -58,12 +58,16 @@ public class ShopItemSlotUI : UIBase, IPointerEnterHandler, IPointerExitHandler,
         var itemData = DataManager.Instance.GetItemData(_slotVm.ItemDataId);
         if (itemData != null)
         {
-            GameUtil.LoadAndSetSpriteImage(Image_ItemIcon, itemData.IconPath).Forget();
+            Image_ItemIcon.sprite = ItemIconLoader.LoadIcon(DataManager.Instance.GetItemData(_slotVm.ItemDataId));
         }
 
         Text_ItemPrice.text = $"{_slotVm.ItemSellingPrice} C";
 
-        if (_slotVm.ItemStackCount <= 1)
+        if (_slotVm.ItemStackCount == -1)
+        {
+            Text_StackCount.text = "∞"; 
+        }
+        else if (_slotVm.ItemStackCount <= 1)
         {
             Text_StackCount.text = "";
         }

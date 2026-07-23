@@ -19,8 +19,9 @@ public class PlayerModel
     public ItemModel EquippedBackpack { get; set; }
     public ItemModel SecureContainer { get; set; }
 
-    public WeaponModel PrimaryWeapon { get; set; }
-    public WeaponModel SecondaryWeapon { get; set; }
+    public ItemModel QuickSlotOne { get; set; }
+    public ItemModel QuickSlotTwo { get; set; }
+    public ItemModel QuickSlotThree { get; set; }
 
     public List<ItemModel> InventoryItems { get; set; }
 

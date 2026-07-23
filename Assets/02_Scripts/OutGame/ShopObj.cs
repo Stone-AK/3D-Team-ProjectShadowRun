@@ -2,6 +2,8 @@
 
 public class ShopObj : MonoBehaviour
 {
+    private PlayerInputHandler InputHandler;
+
     private KeyCode _interactKey = KeyCode.E;
 
     private bool _isPlayerInside = false;
@@ -35,7 +37,7 @@ public class ShopObj : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             _isPlayerInside = true;
-            //_playerController = other.GetComponent<PlayerController>(); 
+            InputHandler = other.GetComponent<PlayerInputHandler>();
             Debug.Log("ShopObj: 플레이어가 상점 범위에 진입했습니다.");
         }
     }
@@ -63,6 +65,7 @@ public class ShopObj : MonoBehaviour
             shopUI.BindViewModel(NetworkManager.Inst.ShopService.GetShopViewModel());
             Debug.Log("ViewModel 바인딩 성공!");
 
+            InputHandler.SetGameplayInputBlocked(true);
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
@@ -76,6 +79,8 @@ public class ShopObj : MonoBehaviour
     {
         NetworkManager.Inst.ShopService.SyncDataOnClose();
         UIManager.Instance.CloseUI(UIRootType.ContentUI, UIType.ShopUI);
+
+        InputHandler.SetGameplayInputBlocked(false);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }

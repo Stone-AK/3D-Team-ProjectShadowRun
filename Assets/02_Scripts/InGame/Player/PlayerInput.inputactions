@@ -122,6 +122,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "GetItem",
+                    "type": "Button",
+                    "id": "e9cb3188-324c-4093-9467-f7b733f689b3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -333,6 +342,17 @@
                     "action": "Lean",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "71a95f22-5748-46b7-a958-e70bd892f5f3",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "GetItem",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

@@ -7,7 +7,7 @@ public class ShopViewModel : ViewModelBase
     public List<ShopItemSlotViewModel> InventoryItemSlotList { get; } = new List<ShopItemSlotViewModel>();
     public List<ShopItemSlotViewModel> StashItemSlotList { get; } = new List<ShopItemSlotViewModel>();
 
-    public ShopViewModel() //임시로 구현. 추후 리스트의 길이를 읽어오는 등의 처리로 바꿀 것.
+    public ShopViewModel() //임시로 구현. 추후 리스트의 길이를 읽어오는 등의 처리로 바꿀 것. NetWorkService 쪽으로 빼면 될까.
     {
         for (int i = 0; i < 10; i++) 
         { 
@@ -27,15 +27,20 @@ public class ShopViewModel : ViewModelBase
         OnPropertyChanged(nameof(HoveredItemId));
     }
 
-    private int _curPlayerCredit;
     public int CurPlayerCredit
     {
-        get => _curPlayerCredit;
+        get
+        {
+            return SaveManager.Instance.LoadPlayerData().CurrentCredit;
+        }
         set
         {
-            if (_curPlayerCredit != value)
+            var playerData = SaveManager.Instance.LoadPlayerData();
+            // 값이 달라졌다면 진짜 PlayerModel의 돈을 깎고 UI 새로고침을 알립니다.
+            if (playerData.CurrentCredit != value)
             {
-                _curPlayerCredit = value;
+                playerData.CurrentCredit = value;
+                SaveManager.Instance.SavePlayerData(playerData);
                 OnPropertyChanged(nameof(CurPlayerCredit));
             }
         }

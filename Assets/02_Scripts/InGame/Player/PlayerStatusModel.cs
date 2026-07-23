@@ -23,69 +23,41 @@ public class PlayerStatusModel
 
     public void TakeDamage(float damage)
     {
-        if (damage <= 0f)
+        if (damage <= 0f || CurrentHP <= 0f)
             return;
 
-        float previousHP = CurrentHP;
-
-        CurrentHP = Mathf.Clamp(
-            CurrentHP - damage,
-            0f,
-            MaxHP
-        );
-
-        if (Mathf.Approximately(previousHP, CurrentHP))
-            return;
+        CurrentHP = Mathf.Clamp(CurrentHP - damage, 0f, MaxHP);
 
         HealthChanged?.Invoke(CurrentHP);
     }
 
     public void RecoverHP( float healAmount )
     {
-        if (healAmount <= 0f)
+        if (healAmount <= 0f || CurrentHP >= MaxHP)
             return;
 
-        float previousHP = CurrentHP;
-
-        CurrentHP = Mathf.Clamp(
-            CurrentHP + healAmount,
-            0f,
-            MaxHP
-        );
-
-        if (Mathf.Approximately(previousHP, CurrentHP))
-            return;
+        CurrentHP = Mathf.Clamp(CurrentHP + healAmount, 0f, MaxHP);
 
         HealthChanged?.Invoke(CurrentHP);
     }
 
     public void UseStamina(float amount)
     {
-        if (amount <= 0f)
+        if (amount <= 0f || CurrentStamina <= 0f)
             return;
-        float previousStamina = CurrentStamina;
-        CurrentStamina = Mathf.Clamp(
-            CurrentStamina - amount,
-            0f,
-            MaxStamina
-        );
-        if (Mathf.Approximately(previousStamina, CurrentStamina))
-            return;
+
+        CurrentStamina = Mathf.Clamp(CurrentStamina - amount, 0f, MaxStamina);
+
         StaminaChanged?.Invoke(CurrentStamina);
     }
 
     public void RecoverStamina(float amount)
     {
-        if (amount <= 0f)
+        if (amount <= 0f || CurrentStamina >= MaxStamina)
             return;
-        float previousStamina = CurrentStamina;
-        CurrentStamina = Mathf.Clamp(
-            CurrentStamina + amount,
-            0f,
-            MaxStamina
-        );
-        if (Mathf.Approximately(previousStamina, CurrentStamina))
-            return;
+
+        CurrentStamina = Mathf.Clamp(CurrentStamina + amount, 0f, MaxStamina);
+
         StaminaChanged?.Invoke(CurrentStamina);
     }
 }

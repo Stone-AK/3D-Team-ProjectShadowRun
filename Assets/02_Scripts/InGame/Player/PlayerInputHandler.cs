@@ -13,6 +13,7 @@ public class PlayerInputHandler : MonoBehaviour
     public event Action FirePerformed;
 
     public event Action InventoryPerformed;
+    public event Action GetItemPerformed;
 
     public event Action CrouchPerformed;
     public event Action PronePerformed;
@@ -57,6 +58,7 @@ public class PlayerInputHandler : MonoBehaviour
         _controls.InGame.Lean.canceled += OnLeanCanceled;
 
         _controls.InGame.Inventory.performed += OnInventory;
+        _controls.InGame.GetItem.performed += OnGetItem;
 
         _controls.InGame.QuickSlot1.performed += OnQuickSlot1;
         _controls.InGame.QuickSlot2.performed += OnQuickSlot2;
@@ -88,6 +90,7 @@ public class PlayerInputHandler : MonoBehaviour
         _controls.InGame.Lean.canceled -= OnLeanCanceled;
 
         _controls.InGame.Inventory.performed -= OnInventory;
+        _controls.InGame.GetItem.performed -= OnGetItem;
 
         _controls.InGame.QuickSlot1.performed -= OnQuickSlot1;
         _controls.InGame.QuickSlot2.performed -= OnQuickSlot2;
@@ -212,6 +215,14 @@ public class PlayerInputHandler : MonoBehaviour
     private void OnInventory(InputAction.CallbackContext context)
     {
         InventoryPerformed?.Invoke();
+    }
+
+    private void OnGetItem(InputAction.CallbackContext context)
+    {
+        if (IsGameplayInputBlocked)
+            return;
+
+        GetItemPerformed?.Invoke();
     }
 
     private void OnFire(InputAction.CallbackContext context)

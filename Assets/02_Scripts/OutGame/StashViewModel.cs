@@ -41,15 +41,20 @@ public class StashViewModel : ViewModelBase
         OnPropertyChanged(nameof(HoveredItemId));
     }
 
-    private int _curPlayerCredit;
     public int CurPlayerCredit
     {
-        get => _curPlayerCredit;
+        get
+        {
+            return SaveManager.Instance.LoadPlayerData().CurrentCredit;
+        }
         set
         {
-            if (_curPlayerCredit != value)
+            var playerData = SaveManager.Instance.LoadPlayerData();
+            // 값이 달라졌다면 진짜 PlayerModel의 돈을 깎고 UI 새로고침을 알립니다.
+            if (playerData.CurrentCredit != value)
             {
-                _curPlayerCredit = value;
+                playerData.CurrentCredit = value;
+                SaveManager.Instance.SavePlayerData(playerData);
                 OnPropertyChanged(nameof(CurPlayerCredit));
             }
         }

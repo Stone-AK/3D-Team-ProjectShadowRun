@@ -283,7 +283,7 @@ public class PlayerMovement : MonoBehaviour
         {
             float useAmount = SprintStaminaUsePerSecond * Time.fixedDeltaTime;
 
-            _playerStatus.Model.UseStamina(useAmount);
+            _playerStatus.UseStamina(useAmount);
 
             if (_playerStatus.Model.CurrentStamina <= 0f)
             {
@@ -293,9 +293,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         float recoverAmount = StaminaRecoveryPerSecond * Time.fixedDeltaTime;
-        _playerStatus.Model.RecoverStamina(
-            recoverAmount
-        );
+        _playerStatus.RecoverStamina(recoverAmount);
     }
 
     private void UpdateSprintExhaustion()

@@ -51,7 +51,7 @@ public class StashItemSlotUI : UIBase, IPointerEnterHandler, IPointerExitHandler
         var itemData = DataManager.Instance.GetItemData(_slotVm.ItemDataId);
         if (itemData != null)
         {
-            GameUtil.LoadAndSetSpriteImage(Image_ItemIcon, itemData.IconPath).Forget();
+            Image_ItemIcon.sprite = ItemIconLoader.LoadIcon(DataManager.Instance.GetItemData(_slotVm.ItemDataId));
         }
 
         if (_slotVm.ItemStackCount <= 1)

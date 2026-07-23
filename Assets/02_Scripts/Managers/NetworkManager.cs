@@ -34,10 +34,5 @@ public class NetworkManager : MonoBehaviour
 
         ShopService.GetShopViewModel().CurPlayerCredit = playerData.CurrentCredit;
         stashVm.CurPlayerCredit = playerData.CurrentCredit;
-
-        //if (InventoryManager.Instance != null)
-        //{
-        //    InventoryManager.Instance.SyncInventoryFromUI(playerData.InventoryItems);
-        //}
     }
 }

@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5182701429034069872}
-  - component: {fileID: 4703267894559630166}
+  - component: {fileID: 5846289688886183844}
   m_Layer: 0
   m_Name: TileGenerator
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3718663483968559709}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4703267894559630166
+--- !u!114 &5846289688886183844
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,23 +41,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 2222013477537672222}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f35e4df00a9ffe40a40c087bcc1e3ac, type: 3}
+  m_Script: {fileID: 11500000, guid: 97a2541182b5106479e7975dcda52f70, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TileGenerator_Old
+  m_EditorClassIdentifier: Assembly-CSharp::TileGenerator
   _maxRoomCount: 20
   _startRoomPrefab: {fileID: 9014001945128448928, guid: b046b459750fb3d41bf17dd89367381a, type: 3}
-  _normalRoomPrefabs:
-  - {fileID: 6837724089310110190, guid: 1449a6057dff90e4793858734e0faf51, type: 3}
-  - {fileID: 7371800336338661674, guid: a9f4b6b50ce93de45b2339ed648b6337, type: 3}
-  - {fileID: 359150092854433879, guid: e371d927ba25e3346a2ca4e99c5abe63, type: 3}
-  - {fileID: 4901067826957378872, guid: 535d8360a74ce4440b70ea25b626ee4d, type: 3}
-  - {fileID: 857432635890952549, guid: 4cc5bd14479ede441b33423f060df298, type: 3}
-  - {fileID: 5033706313656175177, guid: 062771cb963b06d4699a7bcda25b6b0e, type: 3}
-  - {fileID: 9014001945128448928, guid: 3a8ac2dcc30d8624cadbc2b122b07c98, type: 3}
+  _normalRoomType: Normal
   _tileLayerMask:
     serializedVersion: 2
-    m_Bits: 128
-  _maxRetryCount: 50
+    m_Bits: 1024
+  _maxRetryCount: 100
 --- !u!1 &2335931191849953533
 GameObject:
   m_ObjectHideFlags: 0

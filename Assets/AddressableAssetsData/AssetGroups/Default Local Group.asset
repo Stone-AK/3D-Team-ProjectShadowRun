@@ -16,7 +16,7 @@ MonoBehaviour:
   m_GUID: af2087915fdd75341b7b462871670420
   m_SerializeEntries:
   - m_GUID: 016a0b99c19b2184d8e7b59e1daad9cc
-    m_Address: Icon/Item_Loot_Scrap
+    m_Address: Icon/Loot_Scrap
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -26,17 +26,17 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 043316f6ac1e4f340946b81afc606d10
-    m_Address: Icon/Item_SurgKit
+    m_Address: Icon/SurgKit
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0d0e91e08f651b24fb4b7e196420ca8d
-    m_Address: Icon/Item_Loot_Battery
+    m_Address: Icon/Loot_Battery
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 140fcb2f942648c46a7343c2cf09bf9d
-    m_Address: Icon/Item_Loot_USB
+    m_Address: Icon/Loot_USB
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -46,7 +46,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 17dec2b2951be9f4785e8b2b869b5158
-    m_Address: Icon/Item_Medkit
+    m_Address: Icon/Medkit
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -56,12 +56,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 29af8be586c252a4180a7d8e3984af10
-    m_Address: Icon/Item_Ammo_556
+    m_Address: Icon/Ammo_556
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 37d9d9153b3468d47b23805ac3bd8e34
-    m_Address: Icon/Item_Painkiller
+    m_Address: Icon/Painkiller
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -71,12 +71,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4edbde1a3e985104f895e7202ebfa37e
-    m_Address: Icon/Item_Loot_Cable
+    m_Address: Icon/Loot_Cable
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5119255d7c57bcf49aea078e57aa219b
-    m_Address: Icon/Item_Ammo_Energy
+    m_Address: Icon/Ammo_Energy
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -91,7 +91,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5c5b1881b96a3a34da7c907c69fbc16e
-    m_Address: Icon/Item_Loot_CPU
+    m_Address: Icon/Loot_CPU
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -101,27 +101,27 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6532a80cbf26de1478ac2e3b314311a3
-    m_Address: Icon/Item_Ration
+    m_Address: Icon/Ration
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6877df70ec3ed264a84b5e74e7c1a66d
-    m_Address: Icon/Item_Ammo_9mm
+    m_Address: Icon/Ammo_9mm
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 691a0be84a2fe994ab68e6d6f3a0a144
-    m_Address: Icon/Item_Bandage
+    m_Address: Icon/Bandage
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7109fbcda06af164cb0fadfcfb08843e
-    m_Address: Icon/Item_Loot_Gold
+    m_Address: Icon/Loot_Gold
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 78c8cb6559914154cadf4107e0fd78f2
-    m_Address: Icon/Item_Stimulant
+    m_Address: Icon/Stimulant
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -131,7 +131,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7f443e730c278764686476252cbd5294
-    m_Address: Icon/Item_Ammo_762
+    m_Address: Icon/Ammo_762
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -141,12 +141,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 84775f04c44b0a1478a411a515db2816
-    m_Address: Icon/Item_Loot_Watch
+    m_Address: Icon/Loot_Watch
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8d1fd0cda6a35fc4688efcdb6841bd3b
-    m_Address: Icon/Item_Loot_Keycard
+    m_Address: Icon/Loot_Keycard
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -166,7 +166,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a952003c9dd629646b1dd94de2a03332
-    m_Address: Icon/Item_Loot_Tool
+    m_Address: Icon/Loot_Tool
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -176,7 +176,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: af8d6767d8e5e1d4ea405b5faaa45431
-    m_Address: Icon/Item_Loot_HDD
+    m_Address: Icon/Loot_HDD
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -186,12 +186,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: be407aac96cbb1341b6c8edc27a309ed
-    m_Address: Icon/Item_Ammo_12G
+    m_Address: Icon/Ammo_12G
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c91a201fcba73c540ad70c7a4e87a9e6
-    m_Address: Icon/Item_Water
+    m_Address: Icon/Water
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -201,7 +201,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: cb59e2ae9946de745b5a56437fa30cc3
-    m_Address: Icon/Item_Loot_Sample
+    m_Address: Icon/Loot_Sample
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

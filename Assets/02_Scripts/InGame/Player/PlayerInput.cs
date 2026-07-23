@@ -208,6 +208,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""GetItem"",
+                    ""type"": ""Button"",
+                    ""id"": ""e9cb3188-324c-4093-9467-f7b733f689b3"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -419,6 +428,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""Lean"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""71a95f22-5748-46b7-a958-e70bd892f5f3"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""GetItem"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -440,6 +460,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_InGame_Crouch = m_InGame.FindAction("Crouch", throwIfNotFound: true);
         m_InGame_Prone = m_InGame.FindAction("Prone", throwIfNotFound: true);
         m_InGame_Lean = m_InGame.FindAction("Lean", throwIfNotFound: true);
+        m_InGame_GetItem = m_InGame.FindAction("GetItem", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -533,6 +554,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_InGame_Crouch;
     private readonly InputAction m_InGame_Prone;
     private readonly InputAction m_InGame_Lean;
+    private readonly InputAction m_InGame_GetItem;
     /// <summary>
     /// Provides access to input actions defined in input action map "InGame".
     /// </summary>
@@ -596,6 +618,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "InGame/Lean".
         /// </summary>
         public InputAction @Lean => m_Wrapper.m_InGame_Lean;
+        /// <summary>
+        /// Provides access to the underlying input action "InGame/GetItem".
+        /// </summary>
+        public InputAction @GetItem => m_Wrapper.m_InGame_GetItem;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -661,6 +687,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Lean.started += instance.OnLean;
             @Lean.performed += instance.OnLean;
             @Lean.canceled += instance.OnLean;
+            @GetItem.started += instance.OnGetItem;
+            @GetItem.performed += instance.OnGetItem;
+            @GetItem.canceled += instance.OnGetItem;
         }
 
         /// <summary>
@@ -711,6 +740,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Lean.started -= instance.OnLean;
             @Lean.performed -= instance.OnLean;
             @Lean.canceled -= instance.OnLean;
+            @GetItem.started -= instance.OnGetItem;
+            @GetItem.performed -= instance.OnGetItem;
+            @GetItem.canceled -= instance.OnGetItem;
         }
 
         /// <summary>
@@ -842,5 +874,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnLean(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "GetItem" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnGetItem(InputAction.CallbackContext context);
     }
 }
