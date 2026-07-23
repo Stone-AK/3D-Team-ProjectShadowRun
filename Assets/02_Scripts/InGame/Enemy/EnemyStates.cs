@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Drawing;
+using UnityEditorInternal;
+using UnityEngine;
 using UnityEngine.AI;
 
 
@@ -194,7 +196,7 @@ public abstract class BaseEnemyState : IState
         _visionTimer = 0f;
         return true;
     }
-    protected void RotateTowardsPoint(Vector3 point)
+    protected void RotateTowardsToPoint(Vector3 point)
     {
         Vector3 direction = (point - _stateMachine.transform.position).normalized;
         direction.y = 0; // 몬스터가 하늘이나 바닥으로 기울어지는 것 방지
@@ -511,7 +513,7 @@ public class EnemyAttackState : BaseEnemyState
                 return;
             }
         }
-        RotateTowardsPoint(aimPosition);
+        RotateTowardsToPoint(aimPosition);
         switch (currentPhase)
         {
             case AttackPhase.Aim:
@@ -659,7 +661,9 @@ public enum CoverPhase
 {
     FindCover,
     NoCoverCooldown,
-    MoveToCover,
+    MoveToNewCover,
+    MoveToHide,
+    MoveToPeek,
     Hide,
     Peek
 }
@@ -667,7 +671,6 @@ public enum CoverPhase
 public class EnemyCoverActionState : BaseEnemyState
 {
     private CoverPhase _currentCoverPhase;
-    private CoverPhase _resumeCoverPhase;
     private float _cooldownTimer =0f;
     private float _hideTimer =0f;
     
@@ -686,10 +689,20 @@ public class EnemyCoverActionState : BaseEnemyState
             case CoverPhase.FindCover:
                
                 _stateMachine._agent.speed = 2f;
-                if (TryFindCoverWall(out _stateMachine._currentCoverWallInfo))
+                if (TryFindCoverWall(out CoverWallInfo wallinfo))
                 {
-                    _currentCoverPhase = CoverPhase.MoveToCover;
-                    MoveToCoverWall();
+                    if (_stateMachine._currentCoverWallInfo != null && wallinfo.SelectedHidePoint == _stateMachine._currentCoverWallInfo.SelectedHidePoint)
+                    {
+                        _stateMachine._currentCoverWallInfo = wallinfo;
+                        _stateMachine._agent.ResetPath();
+                        _currentCoverPhase = CoverPhase.MoveToHide;
+                    }
+                    else
+                    {
+                        _stateMachine._currentCoverWallInfo = wallinfo;
+                        _currentCoverPhase = CoverPhase.MoveToNewCover;
+                        MoveToCoverWall();
+                    }
                 }
                 else
                 {
@@ -697,14 +710,21 @@ public class EnemyCoverActionState : BaseEnemyState
                     _currentCoverPhase = CoverPhase.NoCoverCooldown;
                 }
                 break;
-            case CoverPhase.MoveToCover:
+            case CoverPhase.MoveToNewCover:
                 UpdateMoveAnimation();
                 if (IsArrivedToCover())
-                {
-                    _stateMachine._animController.ChangeAnimState(EnemyAnimState.Move, 0f);
-                    RotateTowardsPoint(_stateMachine._currentCoverWallInfo.PeekPoint.position);
+                { 
+                    _stateMachine._animController.ChangeAnimState(EnemyAnimState.Move, 0f);                   
                     // _stateMachine._agent.ResetPath();
                     _cooldownTimer = 0f;
+                    _currentCoverPhase = CoverPhase.Hide;
+                }
+                break;
+            case CoverPhase.MoveToHide:
+                MoveDirectToPoint(_stateMachine._currentCoverWallInfo.SelectedHidePoint.HidePoint.position);
+                if (IsArrivedToPointDirect(_stateMachine._currentCoverWallInfo.SelectedHidePoint.HidePoint.position)) 
+                {
+                    _stateMachine._animController.ChangeAnimState(EnemyAnimState.Move, 0f);
                     _currentCoverPhase = CoverPhase.Hide;
                 }
                 break;
@@ -722,7 +742,6 @@ public class EnemyCoverActionState : BaseEnemyState
                 {
                     _stateMachine.ChangeState(_stateMachine._attackState);
                 }
-
                 break;
             case CoverPhase.Hide:
                 if (NeedReload(COMBAT_RELOAD_RATIO))
@@ -733,26 +752,29 @@ public class EnemyCoverActionState : BaseEnemyState
                     _stateMachine.ChangeState(_stateMachine._reloadState);
                     return;
                 }
+                RotateTowardsToPoint(_stateMachine._currentCoverWallInfo.PeekPoint.position);
                 _cooldownTimer += Time.deltaTime;
                 if (_cooldownTimer >= 1.5f)
                 {
                    // _stateMachine._animController.ChangeAnimState(EnemyAnimState.Move, 2f);
                     _stateMachine._agent.speed = 2f;
                     UpdateMoveAnimation();
+                    _stateMachine._agent.ResetPath();
+                    _currentCoverPhase = CoverPhase.MoveToPeek;
+                }
+                break;
+            case CoverPhase.MoveToPeek:
+                MoveDirectToPoint(_stateMachine._currentCoverWallInfo.PeekPoint.position);
+                if (IsArrivedToPointDirect(_stateMachine._currentCoverWallInfo.PeekPoint.position))
+                {
+                    _stateMachine._animController.ChangeAnimState(EnemyAnimState.Move, 0f);
                     _currentCoverPhase = CoverPhase.Peek;
-                    
-                    PeekToShoot();                    
                 }
                 break;
             case CoverPhase.Peek:
-                UpdateMoveAnimation();
-                if (IsArrivedToPeek())
-                {
-                   
-                    // _stateMachine._agent.ResetPath();
-                    _currentCoverPhase = CoverPhase.FindCover;
-                    _stateMachine.ChangeState(_stateMachine._attackState);
-                }
+               
+                _currentCoverPhase = CoverPhase.FindCover;
+                _stateMachine.ChangeState(_stateMachine._attackState);
                 break;
         }
 
@@ -784,19 +806,6 @@ public class EnemyCoverActionState : BaseEnemyState
 
         return false;
     }
-    public void PeekToShoot() 
-    {
-        if (_stateMachine._currentCoverWallInfo == null)
-        {
-            _currentCoverPhase = CoverPhase.NoCoverCooldown;
-            return;
-        }
-        else
-        {
-            _stateMachine._agent.stoppingDistance = 1f;
-            _stateMachine._agent.SetDestination(_stateMachine._currentCoverWallInfo.PeekPoint.position);
-        }
-    }
     public void MoveToCoverWall() {
         if (_stateMachine._currentCoverWallInfo == null)
         {
@@ -809,19 +818,18 @@ public class EnemyCoverActionState : BaseEnemyState
             _stateMachine._agent.SetDestination(_stateMachine._currentCoverWallInfo.SelectedHidePoint.HidePoint.position);
         }
     }
-    public bool IsArrivedToCover() 
+    public bool IsArrivedToCover()
     {
         if (_stateMachine._agent.pathPending)
+        {
             return false;
+        }
 
         return _stateMachine._agent.remainingDistance <= _stateMachine._agent.stoppingDistance;
     }
-    public bool IsArrivedToPeek() 
+    public bool IsArrivedToPointDirect(Vector3 point) 
     {
-        if (_stateMachine._agent.pathPending)
-            return false;
-
-        return _stateMachine._agent.remainingDistance <= _stateMachine._agent.stoppingDistance;
+         return Vector3.Distance(_stateMachine.transform.position, point) <= 0.4f;
     }
    
     public void StartNewCoverAction() 
@@ -883,6 +891,13 @@ public class EnemyCoverActionState : BaseEnemyState
         {
             return false; 
         }
+    }
+    private void MoveDirectToPoint(Vector3 point) 
+    {
+        _stateMachine._animController.ChangeAnimState(EnemyAnimState.Move,_stateMachine._agent.speed);
+        RotateTowardsToPoint(point);
+        _stateMachine.transform.position = Vector3.MoveTowards(_stateMachine.transform.position, point, _stateMachine._agent.speed * Time.deltaTime);
+
     }
 }
 
