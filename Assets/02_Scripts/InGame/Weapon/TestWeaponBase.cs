@@ -9,6 +9,8 @@ public interface IBattleAgent
 {
     BattleAgentTeamType Team { get; }
     Transform Transform { get; }
+
+    bool IsDead { get; }
     void UseWeapon();//무기를 사용할때 공격자를 전달할수있음
 
 }

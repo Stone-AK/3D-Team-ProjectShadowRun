@@ -23,7 +23,7 @@ public class EnemyAnimController : MonoBehaviour
             case EnemyAnimState.Idle: break;
             case EnemyAnimState.Attack: _animator.SetBool("IsAttack",true); break;
             case EnemyAnimState.Reload: _animator.SetBool("IsReload",true); break;
-            case EnemyAnimState.Dead: break;
+            case EnemyAnimState.Dead: _animator.SetTrigger("IsDead"); break;
         }
     }
     public void ChangeAnimState(EnemyAnimState state, float moveSpeed) 
@@ -34,5 +34,6 @@ public class EnemyAnimController : MonoBehaviour
     {
         _animator.SetBool("IsReload", false);
         _animator.SetBool("IsAttack", false);
+       // _animator.SetBool("IsDead", false);
     }
 }
