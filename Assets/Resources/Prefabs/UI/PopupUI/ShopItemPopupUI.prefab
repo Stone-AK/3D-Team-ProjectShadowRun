@@ -55,7 +55,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemPopupUI
   Image_ItemIcon: {fileID: 4934545314173110944}
   Text_ItemName: {fileID: 2079473906115211029}
-  Text_ItemDescription: {fileID: 4123986827177357584}
+  Text_ItemDescription: {fileID: 5329362216553743274}
   Text_ItemSellingPrice: {fileID: 4123986827177357584}
 --- !u!1 &1814810269306837857
 GameObject:
@@ -393,7 +393,7 @@ GameObject:
   - component: {fileID: 2142639121895443879}
   - component: {fileID: 5329362216553743274}
   m_Layer: 5
-  m_Name: Text_ItemEffect
+  m_Name: Text_ItemDesc
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

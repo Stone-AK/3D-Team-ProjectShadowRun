@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public enum WeaponPartsType
 {
@@ -55,16 +56,46 @@ public class ItemData : BaseData
 
     public string UseItemType;
     public string UseItemParameterList;
-    public string[] UseItemParameters;
+    // public string[] UseItemParameters;
 
-    public void ParseUseItemParameters()
+    // 파싱된 키-값 데이터를 보관할 딕셔너리
+    public Dictionary<string, float> ItemParameters = new Dictionary<string, float>();
+
+    public void ParseUseItemParameters( )
     {
-        if (UseItemParameterList == null || UseItemParameterList == "")
-            UseItemParameters = Array.Empty<string>();
-        else
-            UseItemParameters = UseItemParameterList.Split(',');
+        ItemParameters.Clear();
+        if (string.IsNullOrWhiteSpace(UseItemParameterList))
+        {
+            return;
+        }
+
+        string[] pairs = UseItemParameterList.Split(',');
+        for (int i = 0; i < pairs.Length; i++)
+        {
+            string[] keyValue = pairs[i].Split(':');
+            if (keyValue.Length == 2)
+            {
+                string key = keyValue[0].Trim();
+                if (float.TryParse(keyValue[1].Trim(), out float value))
+                {
+                    ItemParameters[key] = value;
+                }
+            }
+        }
+    }
+   
+    public bool TryGetParameter( string key, out float value )
+    {
+        if (ItemParameters.Count == 0 && !string.IsNullOrWhiteSpace(UseItemParameterList))
+        {
+            ParseUseItemParameters();
+        }
+
+        return ItemParameters.TryGetValue(key, out value);
     }
 }
+
+
 
 
 [System.Serializable]
@@ -103,21 +134,6 @@ public class WeaponModel : ItemModel
     public int CurrentAmmo;                 // 현재 장전된 총알 수
     public float CurrentDurability;         // 현재 내구도
     public List<ItemModel> AttachedParts;   // 장착된 파츠들
-}
-
-public interface InterfaceUseItem
-{
-    bool TryUseItem( UseableItem itemData );
-}
-
-[System.Serializable]
-public class UseableItem : ItemData
-{
-    public float HpPerVariation; // 초당 HP 변화량( Damage, Heal )
-    public float ReUseCoolTime; // 재사용 쿨타임
-    public float UseDelay; // 사용 대기 시간
-    public float Duration; // 사용 지속 시간
-
 }
 
 [System.Serializable]

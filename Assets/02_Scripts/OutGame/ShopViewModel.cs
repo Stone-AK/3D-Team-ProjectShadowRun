@@ -29,18 +29,12 @@ public class ShopViewModel : ViewModelBase
 
     public int CurPlayerCredit
     {
-        get
-        {
-            return SaveManager.Instance.LoadPlayerData().CurrentCredit;
-        }
+        get => InventoryManager.Instance.PlayerCredit;
         set
         {
-            var playerData = SaveManager.Instance.LoadPlayerData();
-            // 값이 달라졌다면 진짜 PlayerModel의 돈을 깎고 UI 새로고침을 알립니다.
-            if (playerData.CurrentCredit != value)
+            if (InventoryManager.Instance.PlayerCredit != value)
             {
-                playerData.CurrentCredit = value;
-                SaveManager.Instance.SavePlayerData(playerData);
+                InventoryManager.Instance.PlayerCredit = value;
                 OnPropertyChanged(nameof(CurPlayerCredit));
             }
         }

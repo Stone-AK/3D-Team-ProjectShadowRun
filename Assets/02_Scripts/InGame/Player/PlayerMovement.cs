@@ -41,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField, Range(0.1f, 1f)]
     private float CrouchHeightRatio = 0.5f;
     [SerializeField, Range(0.1f, 1f)]
-    private float CrouchHeadHeightRatio = 0.6f;
+    private float CrouchHeadHeightRatio = 0.7f;
     [SerializeField, Range(0.1f, 1f)]
     private float ProneHeadHeightRatio = 0.25f;
     [SerializeField] private float PostureChangeSpeed = 8f;

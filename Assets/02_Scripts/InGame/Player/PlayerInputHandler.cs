@@ -11,6 +11,8 @@ public class PlayerInputHandler : MonoBehaviour
 
     public event Action JumpPerformed;
     public event Action FirePerformed;
+    public event Action FireCanceled;
+    public event Action ReloadPerformed;
 
     public event Action InventoryPerformed;
     public event Action GetItemPerformed;
@@ -44,6 +46,8 @@ public class PlayerInputHandler : MonoBehaviour
         _controls.InGame.Jump.performed += OnJump;
 
         _controls.InGame.Fire.performed += OnFire;
+        _controls.InGame.Fire.canceled += OnFireCanceled;
+        _controls.InGame.Reload.performed += OnReload;
 
         _controls.InGame.Crouch.performed += OnCrouch;
         _controls.InGame.Prone.performed += OnProne;
@@ -76,6 +80,8 @@ public class PlayerInputHandler : MonoBehaviour
         _controls.InGame.Jump.performed -= OnJump;
 
         _controls.InGame.Fire.performed -= OnFire;
+        _controls.InGame.Fire.canceled -= OnFireCanceled;
+        _controls.InGame.Reload.performed -= OnReload;
 
         _controls.InGame.Sprint.performed -= OnSprint;
         _controls.InGame.Sprint.canceled -= OnSprintCanceled;
@@ -112,6 +118,7 @@ public class PlayerInputHandler : MonoBehaviour
         IsSprintPressed = false;
         IsWalkPressed = false;
         LeanInput = 0f;
+        FireCanceled?.Invoke();
     }
 
     private void OnMove(InputAction.CallbackContext context)
@@ -231,6 +238,19 @@ public class PlayerInputHandler : MonoBehaviour
             return;
 
         FirePerformed?.Invoke();
+    }
+
+    private void OnFireCanceled(InputAction.CallbackContext context)
+    {
+        FireCanceled?.Invoke();
+    }
+
+    private void OnReload(InputAction.CallbackContext context)
+    {
+        if (IsGameplayInputBlocked)
+            return;
+
+        ReloadPerformed?.Invoke();
     }
 
     private void OnQuickSlot1(InputAction.CallbackContext context)

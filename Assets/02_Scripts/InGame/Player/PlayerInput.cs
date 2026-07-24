@@ -138,6 +138,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""Reload"",
+                    ""type"": ""Button"",
+                    ""id"": ""c5443674-e423-4a5f-b214-01e19df341de"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""QuickSlot1"",
                     ""type"": ""Button"",
                     ""id"": ""fefc4860-b1ff-4c90-b2c3-92223eaef199"",
@@ -321,6 +330,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""766cab1c-20ce-49db-aa51-9127585ce888"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Reload"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""2d615e4a-54b5-4b87-a09d-daba108a708e"",
                     ""path"": ""<Keyboard>/1"",
                     ""interactions"": """",
@@ -452,6 +472,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_InGame_Jump = m_InGame.FindAction("Jump", throwIfNotFound: true);
         m_InGame_Inventory = m_InGame.FindAction("Inventory", throwIfNotFound: true);
         m_InGame_Fire = m_InGame.FindAction("Fire", throwIfNotFound: true);
+        m_InGame_Reload = m_InGame.FindAction("Reload", throwIfNotFound: true);
         m_InGame_QuickSlot1 = m_InGame.FindAction("QuickSlot1", throwIfNotFound: true);
         m_InGame_QuickSlot2 = m_InGame.FindAction("QuickSlot2", throwIfNotFound: true);
         m_InGame_QuickSlot3 = m_InGame.FindAction("QuickSlot3", throwIfNotFound: true);
@@ -546,6 +567,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_InGame_Jump;
     private readonly InputAction m_InGame_Inventory;
     private readonly InputAction m_InGame_Fire;
+    private readonly InputAction m_InGame_Reload;
     private readonly InputAction m_InGame_QuickSlot1;
     private readonly InputAction m_InGame_QuickSlot2;
     private readonly InputAction m_InGame_QuickSlot3;
@@ -586,6 +608,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "InGame/Fire".
         /// </summary>
         public InputAction @Fire => m_Wrapper.m_InGame_Fire;
+        /// <summary>
+        /// Provides access to the underlying input action "InGame/Reload".
+        /// </summary>
+        public InputAction @Reload => m_Wrapper.m_InGame_Reload;
         /// <summary>
         /// Provides access to the underlying input action "InGame/QuickSlot1".
         /// </summary>
@@ -663,6 +689,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Fire.started += instance.OnFire;
             @Fire.performed += instance.OnFire;
             @Fire.canceled += instance.OnFire;
+            @Reload.started += instance.OnReload;
+            @Reload.performed += instance.OnReload;
+            @Reload.canceled += instance.OnReload;
             @QuickSlot1.started += instance.OnQuickSlot1;
             @QuickSlot1.performed += instance.OnQuickSlot1;
             @QuickSlot1.canceled += instance.OnQuickSlot1;
@@ -716,6 +745,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Fire.started -= instance.OnFire;
             @Fire.performed -= instance.OnFire;
             @Fire.canceled -= instance.OnFire;
+            @Reload.started -= instance.OnReload;
+            @Reload.performed -= instance.OnReload;
+            @Reload.canceled -= instance.OnReload;
             @QuickSlot1.started -= instance.OnQuickSlot1;
             @QuickSlot1.performed -= instance.OnQuickSlot1;
             @QuickSlot1.canceled -= instance.OnQuickSlot1;
@@ -818,6 +850,13 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnFire(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Reload" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnReload(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "QuickSlot1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

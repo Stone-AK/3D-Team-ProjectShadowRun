@@ -88,6 +88,7 @@ public class PlayerSpawner : MonoBehaviour
     {
         PlayerStatus playerStatus = player.GetComponent<PlayerStatus>();
         PlayerItemInteractor itemInteractor = player.GetComponent<PlayerItemInteractor>();
+        PlayerWeaponController weaponController = player.GetComponent<PlayerWeaponController>();
 
         if (playerStatus == null)
         {
@@ -98,6 +99,12 @@ public class PlayerSpawner : MonoBehaviour
         if (itemInteractor == null)
         {
             Debug.LogError("생성된 Player에 PlayerItemInteractor가 없습니다.");
+            return;
+        }
+
+        if (weaponController == null)
+        {
+            Debug.LogError("생성된 Player에 PlayerWeaponController가 없습니다.");
             return;
         }
 
@@ -118,5 +125,6 @@ public class PlayerSpawner : MonoBehaviour
 
         hudView.BindViewModel(playerStatus.ViewModel);
         hudView.BindItemInfoUI(itemInteractor);
+        hudView.BindWeaponController(weaponController);
     }
 }

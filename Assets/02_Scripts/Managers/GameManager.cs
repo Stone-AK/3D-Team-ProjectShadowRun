@@ -83,6 +83,11 @@ public class GameManager : MonoBehaviour
                     _currentWorkspaceInstance.name = "[Workspace] OutGame_Lobby";
                     Debug.Log("GameManager: 아웃게임 프리팹 배치 완료.");
 
+                    if (NetworkManager.Inst != null && NetworkManager.Inst.ShopService != null)
+                    {
+                        NetworkManager.Inst.ShopService.RefreshShopInventory();
+                    }
+
                     LobbySpawnPos lobbyWorkspace = _currentWorkspaceInstance.GetComponent<LobbySpawnPos>();
                     if (lobbyWorkspace != null && lobbyWorkspace.LobbySpawnPoint != null)
                     {

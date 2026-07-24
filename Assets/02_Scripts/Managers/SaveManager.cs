@@ -83,7 +83,7 @@ public class SaveManager : MonoBehaviour
             InstanceId = Guid.NewGuid().ToString(),
             ItemId = "Item_Weapon_AR_01",
             CurrentStackCount = 1,
-            CurrentAmmo = 30,
+            CurrentAmmo = 0,
             CurrentDurability = 100f
         };
         newPlayer.InventoryItems.Add(mainWeapon);

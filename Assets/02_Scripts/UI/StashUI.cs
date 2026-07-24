@@ -36,18 +36,33 @@ public class StashUI : UIBase
             InventoryManager.Instance.OnInventoryChanged += RefreshInventoryUI;
             RefreshInventoryUI();
         }
+
+        if (NetworkManager.Inst != null && NetworkManager.Inst.StashService != null)
+        {
+            NetworkManager.Inst.StashService.InitStashAndInventoryData();
+        }
     }
 
     private void OnDisable()
     {
         if (_stashVm != null)
         {
+            _stashVm.HoveredItemId = null;
             _stashVm.PropertyChanged -= OnPropChanged_View;
         }
 
         if (InventoryManager.Instance != null)
         {
             InventoryManager.Instance.OnInventoryChanged -= RefreshInventoryUI;
+        }
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ClosePopupUI(UIType.ShopItemPopupUI);
+        }
+        if (NetworkManager.Inst != null && NetworkManager.Inst.StashService != null)
+        {
+            NetworkManager.Inst.StashService.SyncDataOnClose();
         }
     }
 
@@ -130,7 +145,7 @@ public class StashUI : UIBase
                 Text_CurPlayerCredit.text = $"Player Credit : {_stashVm.CurPlayerCredit}";
                 break;
             case nameof(StashViewModel.HoveredItemId):
-                if (_stashVm.HoveredItemId != null)
+                if (_stashVm.HoveredItemId != null && _heldStackCount == 0)
                 {
                     var popupUI = UIManager.Instance.OpenPopupUI(UIType.ShopItemPopupUI) as ShopItemPopupUI;
                     if (popupUI != null)
@@ -153,10 +168,7 @@ public class StashUI : UIBase
 
     public void CloseStashUI()
     {
-        NetworkManager.Inst.StashService.SyncDataOnClose();
         UIManager.Instance.CloseContentUI(UIType.StashUI);
-
-        UIManager.Instance.ClosePopupUI(UIType.ShopItemPopupUI);
     }
 
     private void OnSlotHoverEnter(string dataId)
@@ -178,6 +190,12 @@ public class StashUI : UIBase
         else if (button == PointerEventData.InputButton.Right)
         {
             HandleRightClick(clickedSlotVm);
+        }
+
+        if (_heldStackCount > 0)
+        {
+            // 아이템을 하나라도 집었다면 팝업을 즉시 꺼서 마우스 커서를 가리지 않게 합니다.
+            UIManager.Instance.ClosePopupUI(UIType.ShopItemPopupUI);
         }
     }
 

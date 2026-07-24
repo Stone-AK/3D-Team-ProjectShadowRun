@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -14,8 +15,10 @@ public class NetworkManager : MonoBehaviour
         InitNetworkService();
     }
 
-    private void Start()
+    private IEnumerator Start() // PlayerStatus 의 생성시기를 일찍 끌어올 것.
     {
+        yield return null;
+
         LoadGameData();
     }
 

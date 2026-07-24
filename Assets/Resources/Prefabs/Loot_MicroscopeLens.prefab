@@ -59,5 +59,51 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e5e340f33d7a8754fb1b3a6184f4a8cd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -5674937597316797975}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e5e340f33d7a8754fb1b3a6184f4a8cd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 681003732138051700}
   m_SourcePrefab: {fileID: 100100000, guid: e5e340f33d7a8754fb1b3a6184f4a8cd, type: 3}
+--- !u!1 &3545602644955561472 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: e5e340f33d7a8754fb1b3a6184f4a8cd, type: 3}
+  m_PrefabInstance: {fileID: 4464732991164236625}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-5674937597316797975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3545602644955561472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d00ae1d7ca94119bd881c232a0964e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FieldItem
+--- !u!136 &681003732138051700
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3545602644955561472}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.300027
+  m_Height: 1.0002022
+  m_Direction: 1
+  m_Center: {x: 0.000018909574, y: 0.5001588, z: 0.000081047416}

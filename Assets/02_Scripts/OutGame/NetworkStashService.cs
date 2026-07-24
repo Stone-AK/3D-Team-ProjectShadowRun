@@ -26,7 +26,7 @@ public class NetworkStashService
     public void InitStashAndInventoryData()
     {
         var stashVm = GetStashViewModel();
-        PlayerModel playerData = SaveManager.Instance.LoadPlayerData();
+        PlayerModel playerData = PlayerStatus.Instance.Model;
 
         // 1. 창고 슬롯 초기화
         foreach (var slotVm in stashVm.StashSlots)
@@ -53,48 +53,53 @@ public class NetworkStashService
                 targetSlot.ItemStackCount = savedItem.CurrentStackCount;
                 targetSlot.IsSlotEmpty = false;
             }
+        }
 
-            /* 
-            // TODO: (나중에 기능 고도화 시 사용) 저장된 위치(SlotIndex)대로 배치하는 로직 
-            foreach (var savedItem in playerData.StashItems)
+        /* 
+        foreach (var savedItem in playerData.StashItems)
+        {
+            bool isPlaced = false;
+            if (savedItem.SlotIndex >= 0 && savedItem.SlotIndex < stashVm._maxStashSlot)
             {
-                bool isPlaced = false;
-                if (savedItem.SlotIndex >= 0 && savedItem.SlotIndex < stashVm._maxStashSlot)
+                var targetSlot = stashVm.StashSlots[savedItem.SlotIndex];
+                if (targetSlot.IsSlotEmpty)
                 {
-                    var targetSlot = stashVm.StashSlots[savedItem.SlotIndex];
-                    if (targetSlot.IsSlotEmpty)
-                    {
-                        targetSlot.ItemUniqueId = savedItem.InstanceId;
-                        targetSlot.ItemDataId = savedItem.ItemId;
-                        targetSlot.ItemStackCount = savedItem.CurrentStackCount;
-                        targetSlot.IsSlotEmpty = false;
-                        isPlaced = true;
-                    }
+                    targetSlot.ItemUniqueId = savedItem.InstanceId;
+                    targetSlot.ItemDataId = savedItem.ItemId;
+                    targetSlot.ItemStackCount = savedItem.CurrentStackCount;
+                    targetSlot.IsSlotEmpty = false;
+                    isPlaced = true;
                 }
-                // 위치가 안 맞거나 겹치면 빈 칸 찾아 배치
-                if (!isPlaced)
+            }
+            // 위치가 안 맞거나 겹치면 빈 칸 찾아 배치
+            if (!isPlaced)
+            {
+                foreach (var slot in stashVm.StashSlots)
                 {
-                    foreach (var slot in stashVm.StashSlots)
+                    if (slot.IsSlotEmpty)
                     {
-                        if (slot.IsSlotEmpty)
-                        {
-                            slot.ItemUniqueId = savedItem.InstanceId;
-                            slot.ItemDataId = savedItem.ItemId;
-                            slot.ItemStackCount = savedItem.CurrentStackCount;
-                            slot.IsSlotEmpty = false;
-                            break;
-                        }
+                        slot.ItemUniqueId = savedItem.InstanceId;
+                        slot.ItemDataId = savedItem.ItemId;
+                        slot.ItemStackCount = savedItem.CurrentStackCount;
+                        slot.IsSlotEmpty = false;
+                        break;
                     }
                 }
             }
-            */
         }
+        */
     }
 
     public void SyncDataOnClose()
     {
         var stashVm = GetStashViewModel();
-        PlayerModel playerData = SaveManager.Instance.LoadPlayerData();
+
+        if (PlayerStatus.Instance == null || PlayerStatus.Instance.Model == null)
+        {
+            return;
+        }
+
+        PlayerModel playerData = PlayerStatus.Instance.Model;
 
         List<ItemModel> newStash = new List<ItemModel>();
         foreach (var slotVm in stashVm.StashSlots)
@@ -113,6 +118,9 @@ public class NetworkStashService
         }
 
         playerData.StashItems = newStash;
+
+        if (SaveManager.Instance == null) return;
+
         SaveManager.Instance.SavePlayerData(playerData);
 
     }

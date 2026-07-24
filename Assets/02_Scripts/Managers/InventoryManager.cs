@@ -180,6 +180,24 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
+    public int GetItemCount(string itemId)
+    {
+        if (string.IsNullOrEmpty(itemId))
+            return 0;
+
+        int totalCount = 0;
+
+        foreach (ItemModel stack in InventoryItems)
+        {
+            if (stack.ItemId != itemId)
+                continue;
+
+            totalCount += stack.CurrentStackCount;
+        }
+
+        return totalCount;
+    }
+
     public ItemModel GetItemModel(int index)
     {
         if (index < 0 || index >= InventoryItems.Count)
@@ -364,7 +382,7 @@ public class InventoryManager : MonoBehaviour
         return removed;
     }*/
 
-    public event Action<string, float> OnConsumableUsed;
+    public event Action<ItemData> OnConsumableUsed;
     private bool TryUseConsumable( ItemModel stack )
     {
         if (!IsValidStack(stack))
@@ -380,30 +398,26 @@ public class InventoryManager : MonoBehaviour
 
         Debug.Log("소모품 사용 요청: " + itemData.Name);
 
-        // 파라미터 파싱 및 수치 추출
+        // 파라미터 파싱 (배열 분할)
         itemData.ParseUseItemParameters();
 
-        float value = 0f;
-        if (itemData.UseItemParameters != null && itemData.UseItemParameters.Length > 0)
+        // 구독자들에게 ItemData 전체 전달
+        /*if (OnConsumableUsed != null)
         {
-            float.TryParse(itemData.UseItemParameters[0], out value);
-        }
-
-        // 효과 적용 이벤트 방송 (구독하고 있는 PlayerStatus가 수신)
-        if (OnConsumableUsed != null)
-        {
-            OnConsumableUsed(itemData.UseItemType, value);
-        }
+            OnConsumableUsed(itemData);
+        }*/
+        OnConsumableUsed?.Invoke(itemData);
 
         // 인벤토리 수량 차감
         bool removed = TryRemoveItem(stack.ItemId, 1);
 
         if (removed)
         {
-            if (OnQuickSlotChanged != null)
+            /*if (OnQuickSlotChanged != null)
             {
                 OnQuickSlotChanged();
-            }
+            }*/
+            OnQuickSlotChanged?.Invoke();
         }
 
         return removed;
@@ -642,7 +656,7 @@ public class InventoryManager : MonoBehaviour
             InstanceId = instanceId,
             ItemId = weaponData.Id,
             CurrentStackCount = 1,
-            CurrentAmmo = weaponData.MagazineSize,
+            CurrentAmmo = 0,
             CurrentDurability = weaponData.MaxDurability,
             AttachedParts = new List<ItemModel>()
         };

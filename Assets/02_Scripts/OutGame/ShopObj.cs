@@ -61,7 +61,8 @@ public class ShopObj : MonoBehaviour
 
         if (shopUI != null)
         {
-            NetworkManager.Inst.ShopService.InitShopData();
+            NetworkManager.Inst.ShopService.SyncPlayerInventoryToShop();
+
             shopUI.BindViewModel(NetworkManager.Inst.ShopService.GetShopViewModel());
             Debug.Log("ViewModel 바인딩 성공!");
 

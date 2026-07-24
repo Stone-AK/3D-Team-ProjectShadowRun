@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
 using Cysharp.Threading.Tasks; // 비동기 처리를 위한 네임스페이스 추가
+using System.Collections.Generic;
+using UnityEngine;
+using System.Linq;
 
 public class TileGenerator : MonoBehaviour
 {
@@ -15,10 +16,12 @@ public class TileGenerator : MonoBehaviour
 
     [Header("Generation Safety Settings")]
     [SerializeField] private int _maxRetryCount = 50;
+    [SerializeField] private int _maxExtraRoomCount = 5;
 
     // [개선] Transform 리스트에서 TileSocket 타입 리스트로 변경하여 타입 안정성 확보
     private List<TileSocket> _globalOpenSockets = new List<TileSocket>();
     private int _currentRoomCount = 0;
+    private TileController _spawnedStartRoom;
 
 
     private void Start()
@@ -29,7 +32,7 @@ public class TileGenerator : MonoBehaviour
 
     private async UniTaskVoid InitializeAndGenerate()
     {
-        // GameDataManager가 JSON을 파싱할 때까지 아주 잠깐(1프레임 혹은 데이터 체크) 대기합니다.
+        // DataManager가 JSON을 파싱할 때까지 아주 잠깐(1프레임 혹은 데이터 체크) 대기합니다.
         // 만약 데이터 매니저에 IsInitialized 같은 bool 변수가 있다면 그것을 체크하는 것이 가장 좋습니다.
         await UniTask.Yield(PlayerLoopTiming.Update);
 
@@ -50,35 +53,72 @@ public class TileGenerator : MonoBehaviour
             return;
         }
 
+        _spawnedStartRoom = startRoom;
         _currentRoomCount++;
         _globalOpenSockets.AddRange(startRoom.OpenSockets); // TileController의 프로퍼티 활용
         Debug.Log($"시작 방 생성 완료: ID {startRoomObj.name}");
 
         // 2. 맵 생성 메인 루프 (Layer 1)
-        int totalAttempts = 0;
+        int failedAttempts = 0;
+        int maxFailures = _maxRetryCount;
 
-        while (_currentRoomCount < _maxRoomCount-1 && totalAttempts < _maxRetryCount)
+        while (_currentRoomCount < _maxRoomCount - 1 && failedAttempts < maxFailures)
         {
-            totalAttempts++;
+            if (_globalOpenSockets.Count == 0) break; // 더 이을 소켓이 없으면 즉시 루프 탈출
+
             bool success = await TryConnectRandomRoomAsync();
-            if (success) _currentRoomCount++;
+            if (success)
+            {
+                _currentRoomCount++;
+                // 성공 시에는 failedAttempts를 올리지 않습니다!
+            }
+            else
+            {
+                failedAttempts++; // 실패했을 때만 깎습니다.
+            }
         }
 
         bool endRoomSuccess = TryConnectEndRoom();
 
-        if (endRoomSuccess)
+        if (!endRoomSuccess)
         {
-            _currentRoomCount++;
-            Debug.Log($"[SUCCESS] 끝 지점(인스펙터 프리팹) 배치 성공! 최종 방 개수: {_currentRoomCount}");
+            int extraAttempts = 0;
+
+            while (!endRoomSuccess && extraAttempts < _maxExtraRoomCount)
+            {
+                extraAttempts++;
+
+                bool extended = await TryConnectRandomRoomAsync();
+
+                if (extended)
+                {
+                    _currentRoomCount++;
+                    endRoomSuccess = TryConnectEndRoom();
+                }
+            }
+        }
+
+        if (!endRoomSuccess)
+        {
+            Debug.LogWarning("[WARNING] 공간 부족으로 정상 스폰 실패. 최후의 보루: 기존 막다른 일반 방을 끝 지점으로 교체합니다.");
+            endRoomSuccess = TryForceReplaceAndCull();
+        }
+
+
+        if (!endRoomSuccess)
+        {
+            Debug.LogError("[CRITICAL] 교체 가능한 막다른 방이 없거나 끝 지점 프리팹 미할당으로 최종 실패!");
+
         }
         else
         {
-            Debug.LogError($"[CRITICAL] 끝 지점 배치 실패! 공간 부족으로 인한 겹침 현상이거나 소켓이 부족합니다.");
+            _currentRoomCount++; // 끝 지점 방도 카운트에 포함
+            Debug.Log($"[SUCCESS] 끝 지점(인스펙터 프리팹) 배치 성공! 최종 방 개수: {_currentRoomCount}");
         }
 
         // 결과 리포트
         if (_currentRoomCount < _maxRoomCount)
-            Debug.LogWarning($"[WARNING] TileGenerator: 공간 부족으로 목표치 미달. 최종: {_currentRoomCount}개 (시도: {totalAttempts})");
+            Debug.LogWarning($"[WARNING] TileGenerator: 공간 부족으로 목표치 미달. 최종: {_currentRoomCount}개 (실패 수: {failedAttempts})");
         else
             Debug.Log($"[SUCCESS] TileGenerator: 절차적 맵 생성 완료! 총 {_currentRoomCount}개 방 배치됨.");
 
@@ -148,33 +188,39 @@ public class TileGenerator : MonoBehaviour
         }
 
         // 4. 물리 검사 및 최종 배치 처리 수행 (기존 Layer 3 로직 그대로 재활용)
-        return ProcessRoomPlacement(endRoom, socketA);
+        return ProcessRoomPlacement(endRoom, socketA, true);
     }
 
     // ============================== 물리 검사 및 사후 처리 (Layer 3) ==============================
-    private bool ProcessRoomPlacement(TileController nextRoom, TileSocket socketA)
+    private bool ProcessRoomPlacement(TileController nextRoom, TileSocket socketA, bool isEndRoom = false)
     {
-        TileSocket socketB = nextRoom.GetFirstSocket();
-
-        if (socketB == null)
+        // 🌟 [핵심 개선] 새 방이 가진 '모든 문(Socket)'을 하나씩 다 끼워 맞춰 봅니다!
+        foreach (TileSocket socketB in nextRoom.OpenSockets)
         {
-            HandleSpawnFailure(nextRoom.gameObject);
-            return false;
+            // 1. 해당 문(socketB)을 기준으로 타일 정렬 및 회전
+            TilePhysics.AlignRoom(nextRoom, socketA, socketB);
+
+            // 2. 물리 겹침 검사
+            if (TilePhysics.IsRoomOverlapping(nextRoom, _tileLayerMask))
+            {
+                // 겹치면 부수지 말고, 다음 문(socketB)으로 회전시켜서 다시 시도!
+                continue;
+            }
+
+            // 3. 조기 끊김 검사 (끝 지점은 예외)
+            if (!isEndRoom && IsMapCutOffPrematurely(nextRoom, socketB))
+            {
+                continue; // 맵이 끊길 위험이 있으면 다음 문으로 회전!
+            }
+
+            // 4. 모든 검사를 통과했다면 최종 배치 처리 후 성공(true) 반환!
+            FinalizeRoomPlacement(nextRoom, socketA, socketB);
+            return true;
         }
 
-        // 1. TilePhysics를 이용한 정렬
-        TilePhysics.AlignRoom(nextRoom, socketA, socketB);
-
-        // 2. TilePhysics를 이용한 겹침 검사 및 조기 끊김 검사
-        if (TilePhysics.IsRoomOverlapping(nextRoom, _tileLayerMask) || IsMapCutOffPrematurely(nextRoom, socketB))
-        {
-            HandleSpawnFailure(nextRoom.gameObject);
-            return false;
-        }
-
-        // 3. 성공 시 최종 배치 처리
-        FinalizeRoomPlacement(nextRoom, socketA, socketB);
-        return true;
+        // 방이 가진 모든 문을 다 돌려가며 껴봤는데도 전부 겹치면, 그제서야 스폰 실패 처리
+        HandleSpawnFailure(nextRoom.gameObject);
+        return false;
     }
 
 
@@ -201,7 +247,7 @@ public class TileGenerator : MonoBehaviour
 
         foreach (var socket in nextRoom.OpenSockets)
         {
-            if (socket != socketB) // 방금 연결에 사용된 소켓 B를 제외한 나머지 추가
+            if (socket != socketB)
             {
                 _globalOpenSockets.Add(socket);
             }
@@ -222,6 +268,162 @@ public class TileGenerator : MonoBehaviour
         {
             Debug.LogWarning($"[WARNING] TileGenerator: 맵 조기 끊김 감지! {nextRoom.gameObject.name} 배치를 반려합니다.");
             return true;
+        }
+
+        return false;
+    }
+
+    private HashSet<TileController> GetMainIslandRooms(TileController startRoom, TileController ignoredRoom)
+    {
+        TileController[] allRooms = FindObjectsByType<TileController>(FindObjectsSortMode.None);
+        HashSet<TileController> visited = new HashSet<TileController>();
+        Queue<TileController> queue = new Queue<TileController>();
+
+        if (startRoom == null) return visited;
+
+        queue.Enqueue(startRoom);
+        visited.Add(startRoom);
+
+        int safetyCounter = 0; // 🌟 무한 루프 방지용 안전 상한선
+
+        while (queue.Count > 0 && safetyCounter < 500)
+        {
+            safetyCounter++;
+            TileController current = queue.Dequeue();
+
+            foreach (TileSocket socket in current.OpenSockets)
+            {
+                if (socket == null || !socket.IsConnected) continue;
+
+                // 이 소켓과 맞닿아 있는 상대방 소켓 찾기
+                TileSocket neighborSocket = FindConnectedParentSocket(socket, allRooms, ignoredRoom);
+                if (neighborSocket != null)
+                {
+                    TileController neighborRoom = neighborSocket.GetComponentInParent<TileController>();
+
+                    // 무시할 방이 아니고, 아직 방문하지 않은 본토 방이라면 큐에 추가
+                    if (neighborRoom != null && neighborRoom != ignoredRoom && !visited.Contains(neighborRoom))
+                    {
+                        visited.Add(neighborRoom);
+                        queue.Enqueue(neighborRoom);
+                    }
+                }
+            }
+        }
+        return visited;
+    }
+
+
+    // ============================== 헬퍼: 맞닿은 소켓 찾기 (거리 기반 안전 검사) ==============================
+    private TileSocket FindConnectedParentSocket(TileSocket myConnectedSocket, TileController[] allRooms, TileController myRoom)
+    {
+        if (myConnectedSocket == null || myConnectedSocket.ConnectionPoint == null) return null;
+
+        float threshold = 0.2f; // 문과 문이 맞닿아 있는 표준 오차 범위
+        Transform myPoint = myConnectedSocket.ConnectionPoint;
+
+        foreach (TileController room in allRooms)
+        {
+            if (room == null || room == myRoom) continue;
+            // 만약 대상 방이 현재 숨겨져(SetActive(false)) 있다면 탐색에서 제외합니다!
+            if (!room.gameObject.activeInHierarchy) continue;
+
+            foreach (TileSocket otherSocket in room.OpenSockets)
+            {
+                if (otherSocket == null || otherSocket.ConnectionPoint == null) continue;
+
+                Transform otherPoint = otherSocket.ConnectionPoint;
+
+                // 위치가 거의 일치하고 연결 상태가 참인 경우
+                if (Vector3.Distance(myPoint.position, otherPoint.position) < threshold)
+                {
+                    return otherSocket;
+                }
+            }
+        }
+        return null;
+    }
+
+    private bool TryForceReplaceAndCull()
+    {
+        if (_endRoomPrefab == null || _spawnedStartRoom == null) return false;
+
+        TileController startRoomInstance = _spawnedStartRoom;
+        TileController[] allRooms = FindObjectsByType<TileController>(FindObjectsSortMode.None);
+
+        List<TileController> candidateRooms = new List<TileController>();
+        foreach (var room in allRooms)
+        {
+            if (room != null && room != startRoomInstance)
+            {
+                candidateRooms.Add(room);
+            }
+        }
+
+        // 후보 방들을 순회하며 '진짜 막다른 방'을 찾아 끝 지점으로 교체합니다.
+        foreach (TileController targetRoom in candidateRooms)
+        {
+            if (targetRoom == null) continue;
+
+            // 1. 연결된 소켓이 딱 1개뿐인 '진짜 막다른 방'인지 확인합니다. (다른 길을 끊어먹지 않기 위함)
+            List<TileSocket> connectedSockets = new List<TileSocket>();
+            foreach (TileSocket socket in targetRoom.OpenSockets)
+            {
+                if (socket.IsConnected)
+                {
+                    connectedSockets.Add(socket);
+                }
+            }
+
+            if (connectedSockets.Count != 1) continue; // 막다른 방이 아니라면 패스!
+
+            TileSocket targetSocket = connectedSockets[0];
+
+            // 2. targetRoom을 잠시 숨겨서 물리 충돌을 막고, 이 방이 본토와 연결되어 있던 부모 소켓을 찾습니다.
+            targetRoom.gameObject.SetActive(false);
+            TileSocket parentSocket = FindConnectedParentSocket(targetSocket, allRooms, targetRoom);
+
+            if (parentSocket == null)
+            {
+                targetRoom.gameObject.SetActive(true);
+                continue;
+            }
+
+            parentSocket.IsConnected = false;
+
+            // 3. 비워진 그 자리에 끝 지점 방 배치를 시도합니다.
+            GameObject endRoomObj = GameObjectManager.Instance.SpawnObject(_endRoomPrefab, Vector3.zero, Quaternion.identity);
+            TileController endRoom = endRoomObj.GetComponent<TileController>();
+
+            bool placementSuccess = (endRoom != null && ProcessRoomPlacement(endRoom, parentSocket, true));
+
+            if (placementSuccess)
+            {
+                Debug.Log("[SUCCESS] 최후의 보루: 막다른 일반 방을 끝 지점으로 안전하게 교체했습니다!");
+
+                // 4. 배치가 성공했으므로 기존 막다른 방은 영구 파괴하여 공간을 완전히 내어줍니다.
+                _globalOpenSockets.RemoveAll(socket => targetRoom.OpenSockets.Contains(socket));
+                Destroy(targetRoom.gameObject);
+
+                // 끝 지점의 남은 열린 소켓들을 글로벌 리스트에 안전하게 추가합니다.
+                foreach (TileSocket socket in endRoom.OpenSockets)
+                {
+                    if (!socket.IsConnected) _globalOpenSockets.Add(socket);
+                }
+
+                // 기존 방 1개가 사라지고 끝 방 1개가 들어왔으므로, 
+                // GenerateMapAsync의 바깥쪽 카운트 증가와 맞추기 위해 미리 1을 빼둡니다.
+                _currentRoomCount--;
+
+                return true;
+            }
+            else
+            {
+                // 5. 실패했다면 원상 복구합니다. (중요: 다른 방을 또 시도해야 하므로 원복 필수!)
+                if (endRoomObj != null) Destroy(endRoomObj);
+                parentSocket.IsConnected = true;
+                targetRoom.gameObject.SetActive(true);
+            }
         }
 
         return false;

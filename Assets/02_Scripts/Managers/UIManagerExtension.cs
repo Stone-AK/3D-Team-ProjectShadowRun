@@ -25,7 +25,8 @@ public enum UIType
     ShopUI,
     ShopItemPopupUI,
     StashUI,
-    StartUI
+    StartUI,
+    PauseUI
 }
 
 public static class UIManagerExtension
@@ -134,6 +135,43 @@ public static class UIManagerExtension
     {
         uiManager.CloseUI(UIRootType.PopupUI, UIType.StartUI);
         SetInventoryCursorState(false);
+    }
+
+    public static void OpenPauseUI(this UIManager uiManager)
+    {
+        var uiBase = uiManager.OpenUI(UIRootType.PopupUI, UIType.PauseUI);
+        if (uiBase == null)
+        {
+            Debug.LogWarning("PauseUI가 생성되지 않았습니다.");
+            return;
+        }
+
+        Time.timeScale = 0f;
+        SetCursorStateForPause(true);
+    }
+
+    public static void ClosePauseUI(this UIManager uiManager)
+    {
+        uiManager.CloseUI(UIRootType.PopupUI, UIType.PauseUI);
+
+        Time.timeScale = 1f;
+        SetCursorStateForPause(false);
+    }
+
+    public static void TogglePauseUI(this UIManager uiManager)
+    {
+        bool isOpened = uiManager.IsUIOpened(UIRootType.PopupUI, UIType.PauseUI);
+
+        if (isOpened)
+            uiManager.ClosePauseUI();
+        else
+            uiManager.OpenPauseUI();
+    }
+
+    private static void SetCursorStateForPause(bool isPauseOpen)
+    {
+        Cursor.visible = isPauseOpen;
+        Cursor.lockState = isPauseOpen ? CursorLockMode.None : CursorLockMode.Locked;
     }
 
 }

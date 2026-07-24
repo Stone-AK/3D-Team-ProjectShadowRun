@@ -1949,6 +1949,7 @@ GameObject:
   - component: {fileID: 8164906658423513938}
   - component: {fileID: 5159432160104867375}
   - component: {fileID: 5242166127282976409}
+  - component: {fileID: 3867790883894969020}
   - component: {fileID: 2594667027422455901}
   - component: {fileID: 7304968640189071439}
   - component: {fileID: 4765270145573547274}
@@ -1958,6 +1959,7 @@ GameObject:
   - component: {fileID: 4183498448615601335}
   - component: {fileID: 4968580984755581381}
   - component: {fileID: 6118797289068335299}
+  - component: {fileID: 8807692790497756050}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -2027,7 +2029,7 @@ MonoBehaviour:
   ProneCollider: {fileID: 7588999015336974005}
   Head: {fileID: 6414859238678251675}
   CrouchHeightRatio: 0.5
-  CrouchHeadHeightRatio: 0.6
+  CrouchHeadHeightRatio: 0.7
   ProneHeadHeightRatio: 0.25
   PostureChangeSpeed: 8
   CrouchSpeed: 3
@@ -2058,6 +2060,24 @@ MonoBehaviour:
     m_Bits: 1
   LeanCollisionRadius: 0.15
   LeanCollisionPadding: 0.02
+--- !u!114 &3867790883894969020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7834500494340706646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e0d975c03d17b64b823402fc3779405, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCameraRecoil
+  PlayerSight: {fileID: 5242166127282976409}
+  RecoilTarget: {fileID: 0}
+  VerticalRecoilAngle: 1.5
+  HorizontalRecoilAngle: 0.5
+  KickSpeed: 25
+  ReturnSpeed: 10
 --- !u!114 &2594667027422455901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2141,7 +2161,7 @@ CapsuleCollider:
   m_Radius: 0.5
   m_Height: 2
   m_Direction: 2
-  m_Center: {x: 0, y: 0, z: 0.5}
+  m_Center: {x: 0, y: 0, z: -0.5}
 --- !u!54 &6622171463591126358
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2216,6 +2236,26 @@ MonoBehaviour:
   ItemLayerMask:
     serializedVersion: 2
     m_Bits: 2304
+--- !u!114 &8807692790497756050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7834500494340706646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de6b32a603bd42a4a87ace2a1f0fc1e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerWeaponController
+  PlayerWeaponSocket: {fileID: 7995536942549607209}
+  MainCamera: {fileID: 0}
+  InputHandler: {fileID: 2594667027422455901}
+  AnimeController: {fileID: 4765270145573547274}
+  AimLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  MaxSpreadAngle: 10
 --- !u!1 &7918257139273063620
 GameObject:
   m_ObjectHideFlags: 0

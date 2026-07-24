@@ -45,7 +45,7 @@ public static class TilePhysics
 
         if (hitColliders.Length > 0)
         {
-            Debug.LogWarning($"[물리 겹침 반려] '{room.gameObject.name}' 방이 '{hitColliders[0].gameObject.name}' 오브젝트와 겹쳐서 생성을 취소합니다!");
+            // Debug.LogWarning($"[물리 겹침 반려] '{room.gameObject.name}' 방이 '{hitColliders[0].gameObject.name}' 오브젝트와 겹쳐서 생성을 취소합니다!");
             return true;
         }
 

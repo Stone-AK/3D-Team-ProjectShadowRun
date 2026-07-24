@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PlayerStatus : MonoBehaviour
+public class PlayerStatus : MonoBehaviour, IDamageable
 {
     public static PlayerStatus Instance { get; set; }
 
@@ -56,6 +56,21 @@ public class PlayerStatus : MonoBehaviour
 
         Model.CurrentHP = Mathf.Clamp(Model.CurrentHP - damage, 0f, Model.MaxHP);
         HealthChanged?.Invoke(Model.CurrentHP);
+
+        if (Model.CurrentHP <= 0f)
+            Die();
+    }
+
+    private void Die()
+    {
+        Model.InventoryItems.Clear();
+        Model.EquippedHelmet = null;
+        Model.EquippedArmor = null;
+        Model.QuickSlotOne = null;
+        Model.QuickSlotTwo = null;
+        Model.QuickSlotThree = null;
+
+        GameManager.Instance.ReturnToOutGame();
     }
 
     public void RecoverHP(float healAmount)

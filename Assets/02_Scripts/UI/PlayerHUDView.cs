@@ -12,10 +12,14 @@ public class PlayerHUDView : UIBase
     [Header("Stamina")]
     [SerializeField] private Slider StaminaSlider;
 
+    [Header("Ammo")]
+    [SerializeField] private TMP_Text Text_Ammo;
+
     [Header("Item Info")]
     [SerializeField] private ItemInfoUI ItemInfo;
 
     private PlayerStatusViewModel _viewModel;
+    private PlayerWeaponController _weaponController;
 
     public void BindViewModel(PlayerStatusViewModel viewModel)
     {
@@ -35,6 +39,47 @@ public class PlayerHUDView : UIBase
         }
 
         ItemInfo.BindItemInteractor(itemInteractor);
+    }
+
+    public void BindWeaponController(PlayerWeaponController weaponController)
+    {
+        if (_weaponController != null)
+        {
+            _weaponController.OnAmmoChanged -= UpdateAmmoText;
+            _weaponController.OnReloadStateChanged -= UpdateReloadState;
+        }
+
+        _weaponController = weaponController;
+
+        if (_weaponController == null)
+            return;
+
+        _weaponController.OnAmmoChanged += UpdateAmmoText;
+        _weaponController.OnReloadStateChanged += UpdateReloadState;
+
+        if (_weaponController.IsReloading)
+            UpdateReloadState(true);
+        else
+            UpdateAmmoText(_weaponController.CurrentAmmo, _weaponController.CurrentReserveAmmo);
+    }
+
+    private void UpdateAmmoText(int currentAmmo, int reserveAmmo)
+    {
+        if (Text_Ammo == null)
+            return;
+
+        Text_Ammo.text = $"{currentAmmo} / {reserveAmmo}";
+    }
+
+    private void UpdateReloadState(bool isReloading)
+    {
+        if (Text_Ammo == null)
+            return;
+
+        if (isReloading)
+            Text_Ammo.text = "Reloading...";
+        else if (_weaponController != null)
+            UpdateAmmoText(_weaponController.CurrentAmmo, _weaponController.CurrentReserveAmmo);
     }
 
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs eventChangeProperty)
@@ -66,9 +111,13 @@ public class PlayerHUDView : UIBase
 
     private void OnDestroy()
     {
-        if (_viewModel == null)
-            return;
+        if (_viewModel != null)
+            _viewModel.PropertyChanged -= OnPropertyChanged;
 
-        _viewModel.PropertyChanged -= OnPropertyChanged;
+        if (_weaponController != null)
+        {
+            _weaponController.OnAmmoChanged -= UpdateAmmoText;
+            _weaponController.OnReloadStateChanged -= UpdateReloadState;
+        }
     }
 }
