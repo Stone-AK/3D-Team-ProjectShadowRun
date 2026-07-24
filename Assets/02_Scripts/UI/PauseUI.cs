@@ -31,7 +31,6 @@ public class PauseUI : UIBase
 
         Time.timeScale = 1f;
 
-        // 인벤토리 비우는 로직 생성 예정
 
         UIManager.Instance.ClosePauseUI();
         GameManager.Instance.ReturnToOutGame();

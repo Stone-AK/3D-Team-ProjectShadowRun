@@ -54,7 +54,8 @@ public class GameManager : MonoBehaviour
         _currentGameState = GameState.Core;
         Debug.Log("GameManager: 코어 시스템 초기화 완료. 아웃게임(로비) 프리팹을 생성합니다.");
 
-        ChangeState(GameState.InGame);
+        UIManager.Instance.OpenTitleUI();
+        
     }
 
     public void ChangeState(GameState newState)

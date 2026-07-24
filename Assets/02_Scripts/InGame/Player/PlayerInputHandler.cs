@@ -20,6 +20,8 @@ public class PlayerInputHandler : MonoBehaviour
     public event Action CrouchPerformed;
     public event Action PronePerformed;
 
+    public event Action PausePerformed;
+
     public bool IsGameplayInputBlocked { get; private set; }
 
     public bool IsSprintPressed { get; private set; }
@@ -64,6 +66,8 @@ public class PlayerInputHandler : MonoBehaviour
         _controls.InGame.Inventory.performed += OnInventory;
         _controls.InGame.GetItem.performed += OnGetItem;
 
+        _controls.InGame.Pause.performed += OnPause;
+
         _controls.InGame.QuickSlot1.performed += OnQuickSlot1;
         _controls.InGame.QuickSlot2.performed += OnQuickSlot2;
         _controls.InGame.QuickSlot3.performed += OnQuickSlot3;
@@ -97,6 +101,8 @@ public class PlayerInputHandler : MonoBehaviour
 
         _controls.InGame.Inventory.performed -= OnInventory;
         _controls.InGame.GetItem.performed -= OnGetItem;
+
+        _controls.InGame.Pause.performed -= OnPause;
 
         _controls.InGame.QuickSlot1.performed -= OnQuickSlot1;
         _controls.InGame.QuickSlot2.performed -= OnQuickSlot2;
@@ -230,6 +236,16 @@ public class PlayerInputHandler : MonoBehaviour
             return;
 
         GetItemPerformed?.Invoke();
+    }
+
+    private void OnPause(InputAction.CallbackContext context)
+    {
+        PausePerformed?.Invoke();
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.TogglePauseUI(this);
+        }
     }
 
     private void OnFire(InputAction.CallbackContext context)
