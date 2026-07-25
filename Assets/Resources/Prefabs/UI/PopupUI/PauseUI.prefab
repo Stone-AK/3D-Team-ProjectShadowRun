@@ -254,9 +254,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 9184906429011328784}
         m_TargetAssemblyTypeName: StartUI, Assembly-CSharp
-        m_MethodName: StartNewGame
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1175,4 +1175,4 @@ MonoBehaviour:
   Button_EmergencyEscape: {fileID: 941527096969666011}
   Button_Save: {fileID: 4141251456486846974}
   Button_Resume: {fileID: 7489729049528379286}
-  Button_QuitGame: {fileID: 0}
+  Button_QuitGame: {fileID: 2343841445100707516}

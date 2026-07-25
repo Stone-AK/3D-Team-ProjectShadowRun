@@ -3,12 +3,13 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class StartUI :UIBase
+public class TitleUI : UIBase
 {
 
     [SerializeField] private TMP_Text Text_Title;
     [SerializeField] private Button Button_NewStart;
     [SerializeField] private Button Button_Load;
+    [SerializeField] private Button Button_EXIT;
 
 
 
@@ -16,7 +17,7 @@ public class StartUI :UIBase
     {
         SaveManager.Instance.CreateNewPlayerData();
         GameManager.Instance.StartInGame();
-        UIManager.Instance.CloseStartUI();
+        UIManager.Instance.CloseTitleUI();
 
     }
 
@@ -24,8 +25,18 @@ public class StartUI :UIBase
     {
         SaveManager.Instance.LoadPlayerData();
         GameManager.Instance.StartInGame();
-        UIManager.Instance.CloseStartUI();
+        UIManager.Instance.CloseTitleUI();
 
+    }
+
+    public void EXITGame()
+    {
+        Debug.Log("게임 종료");
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
 }
