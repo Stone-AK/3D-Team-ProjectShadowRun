@@ -162,7 +162,7 @@ public class PlayerStatus : MonoBehaviour, IDamageable
         StaminaChanged?.Invoke(Model.CurrentStamina);
     }
 
-    private void RestoreStatus()
+    public void RestoreStatus()
     {
         if (Model == null)
             return;
