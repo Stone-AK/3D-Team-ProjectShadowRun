@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public enum PlayerPosture
 {
@@ -30,8 +30,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform GroundCheck;
     [SerializeField] private float GroundRadius = 0.2f;
     [SerializeField] private LayerMask GroundMask;
+    [SerializeField] private float GroundingForce = 10f;
+    [SerializeField] private float GroundingDisableDuration = 0.15f;
 
     private bool _isGrounded;
+    private float _groundingDisabledUntil;
     private Rigidbody _rigidbody;
 
     [Header("Posture")]
@@ -115,6 +118,7 @@ public class PlayerMovement : MonoBehaviour
         Move();
         UpdatePostureCollider();
         CheckGround();
+        ApplyGroundingForce();
     }
 
     private void CheckGround()
@@ -123,6 +127,17 @@ public class PlayerMovement : MonoBehaviour
             GroundCheck.position,
             GroundRadius,
             GroundMask
+        );
+    }
+
+    private void ApplyGroundingForce()
+    {
+        if (!_isGrounded || Time.time < _groundingDisabledUntil)
+            return;
+
+        _rigidbody.AddForce(
+            Vector3.down * GroundingForce,
+            ForceMode.Acceleration
         );
     }
 
@@ -174,10 +189,8 @@ public class PlayerMovement : MonoBehaviour
         if (_currentPosture != PlayerPosture.Standing)
             return;
 
-        _rigidbody.AddForce(
-            Vector3.up * JumpPower,
-            ForceMode.Impulse
-        );
+        _groundingDisabledUntil = Time.time + GroundingDisableDuration;
+        _rigidbody.AddForce(Vector3.up * JumpPower, ForceMode.Impulse);
     }
 
     private Vector3 CalculateColliderCenter(float targetHeight)

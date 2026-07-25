@@ -110,8 +110,15 @@ public class PlayerStatus : MonoBehaviour, IDamageable
         if (damage <= 0f || Model.CurrentHP <= 0f)
             return;
 
+        Debug.Log($"[PlayerStatus 진단] 피해 적용 전 - Damage: {damage}, CurrentHP: {Model.CurrentHP}, InventoryCount: {Model.InventoryItems.Count}");
+
         Model.CurrentHP = Mathf.Clamp(Model.CurrentHP - damage, 0f, Model.MaxHP);
         HealthChanged?.Invoke(Model.CurrentHP);
+
+        Debug.Log(
+            $"[PlayerStatus 진단] 피해 적용 후 - CurrentHP: {Model.CurrentHP}, " +
+            $"InventoryCount: {Model.InventoryItems.Count}"
+        );
 
         if (Model.CurrentHP <= 0f)
             Die();
@@ -119,6 +126,8 @@ public class PlayerStatus : MonoBehaviour, IDamageable
 
     private void Die()
     {
+        Debug.LogError($"[PlayerStatus 진단] Die 호출 - CurrentHP: {Model.CurrentHP}, InventoryCount: {Model.InventoryItems.Count} {System.Environment.StackTrace}");
+
         Model.InventoryItems.Clear();
         Model.EquippedHelmet = null;
         Model.EquippedArmor = null;
