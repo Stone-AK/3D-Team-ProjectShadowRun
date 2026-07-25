@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -55,6 +55,26 @@ public class InventoryManager : MonoBehaviour
         }
 
         Instance = this;
+    }
+
+    public void ClearInventory()
+    {
+        InventoryItems.Clear();
+
+        PlayerStatus.Instance.Model.EquippedHelmet = null;
+        PlayerStatus.Instance.Model.EquippedArmor = null;
+        PlayerStatus.Instance.Model.EquippedRig = null;
+        PlayerStatus.Instance.Model.EquippedBackpack = null;
+
+        PlayerStatus.Instance.Model.QuickSlotOne = null;
+        PlayerStatus.Instance.Model.QuickSlotTwo = null;
+        PlayerStatus.Instance.Model.QuickSlotThree = null;
+        _selectedQuickSlotIndex = -1;
+
+        OnInventoryChanged?.Invoke();
+        OnEquipmentChanged?.Invoke();
+        OnQuickSlotChanged?.Invoke();
+        OnSelectedQuickSlotChanged?.Invoke();
     }
 
     public int TryAddItem(ItemData item, int count)

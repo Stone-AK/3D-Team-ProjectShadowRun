@@ -2309,6 +2309,9 @@ MonoBehaviour:
   GroundMask:
     serializedVersion: 2
     m_Bits: 64
+  GroundingForce: 50
+  GroundingDisableDuration: 0.15
+  GroundingReleaseDelay: 0.1
   StandingCollider: {fileID: 4907903416859211107}
   ProneCollider: {fileID: 7588999015336974005}
   Head: {fileID: 6414859238678251675}

@@ -90,7 +90,7 @@ public class MapLootSpawner : MonoBehaviour
             return new WeaponModel
             {
                 InstanceId = newInstanceId,
-                ItemId = data.Name,
+                ItemId = data.Id,
                 CurrentStackCount = 1,
                 CurrentAmmo = weaponData.MagazineSize,
                 CurrentDurability = weaponData.MaxDurability,
@@ -102,7 +102,7 @@ public class MapLootSpawner : MonoBehaviour
             return new ItemModel
             {
                 InstanceId = newInstanceId,
-                ItemId = data.Name,
+                ItemId = data.Id,
                 CurrentStackCount = 1
             };
         }

@@ -128,12 +128,9 @@ public class PlayerStatus : MonoBehaviour, IDamageable
     {
         Debug.LogError($"[PlayerStatus 진단] Die 호출 - CurrentHP: {Model.CurrentHP}, InventoryCount: {Model.InventoryItems.Count} {System.Environment.StackTrace}");
 
-        Model.InventoryItems.Clear();
-        Model.EquippedHelmet = null;
-        Model.EquippedArmor = null;
-        Model.QuickSlotOne = null;
-        Model.QuickSlotTwo = null;
-        Model.QuickSlotThree = null;
+        InventoryManager.Instance.ClearInventory();
+
+        RestoreStatus();
 
         GameManager.Instance.ReturnToOutGame();
     }
@@ -162,6 +159,18 @@ public class PlayerStatus : MonoBehaviour, IDamageable
             return;
 
         Model.CurrentStamina = Mathf.Clamp(Model.CurrentStamina + amount, 0f, Model.MaxStamina);
+        StaminaChanged?.Invoke(Model.CurrentStamina);
+    }
+
+    private void RestoreStatus()
+    {
+        if (Model == null)
+            return;
+
+        Model.CurrentHP = Model.MaxHP;
+        Model.CurrentStamina = Model.MaxStamina;
+
+        HealthChanged?.Invoke(Model.CurrentHP);
         StaminaChanged?.Invoke(Model.CurrentStamina);
     }
 

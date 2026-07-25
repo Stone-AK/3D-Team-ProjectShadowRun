@@ -30,12 +30,21 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform GroundCheck;
     [SerializeField] private float GroundRadius = 0.2f;
     [SerializeField] private LayerMask GroundMask;
-    [SerializeField] private float GroundingForce = 10f;
+    [SerializeField] private float GroundingForce = 50f;
     [SerializeField] private float GroundingDisableDuration = 0.15f;
+    [SerializeField] private float GroundingReleaseDelay = 0.1f;
 
     private bool _isGrounded;
     private float _groundingDisabledUntil;
+    private float _lastMoveInputTime;
     private Rigidbody _rigidbody;
+
+    [Header("Fall Damage")]
+    [SerializeField] private float SafeFallSpeed = 8f;
+    [SerializeField] private float FallDamagePerSpeed = 10f;
+
+    private bool _wasGrounded;
+    private float _maximumFallSpeed;
 
     [Header("Posture")]
     [SerializeField] private CapsuleCollider StandingCollider;
@@ -118,6 +127,7 @@ public class PlayerMovement : MonoBehaviour
         Move();
         UpdatePostureCollider();
         CheckGround();
+        UpdateFallDamage();
         ApplyGroundingForce();
     }
 
@@ -132,13 +142,45 @@ public class PlayerMovement : MonoBehaviour
 
     private void ApplyGroundingForce()
     {
-        if (!_isGrounded || Time.time < _groundingDisabledUntil)
+        bool hasMoveInput = InputHandler.MoveInput.sqrMagnitude > 0.01f;
+
+        if (hasMoveInput)
+            _lastMoveInputTime = Time.time;
+
+        bool recentlyMoved = Time.time - _lastMoveInputTime <= GroundingReleaseDelay;
+
+        if (!_isGrounded || !recentlyMoved || Time.time < _groundingDisabledUntil)
             return;
 
         _rigidbody.AddForce(
             Vector3.down * GroundingForce,
             ForceMode.Acceleration
         );
+    }
+
+    private void UpdateFallDamage()
+    {
+        if (!_isGrounded)
+        {
+            float currentFallSpeed = -_rigidbody.linearVelocity.y;
+
+            if (currentFallSpeed > _maximumFallSpeed)
+                _maximumFallSpeed = currentFallSpeed;
+        }
+        else if (!_wasGrounded)
+        {
+            float dangerousFallSpeed = _maximumFallSpeed - SafeFallSpeed;
+
+            if (dangerousFallSpeed > 0f)
+            {
+                float fallDamage = dangerousFallSpeed * FallDamagePerSpeed;
+                _playerStatus.TakeDamage(fallDamage);
+            }
+
+            _maximumFallSpeed = 0f;
+        }
+
+        _wasGrounded = _isGrounded;
     }
 
     private void Move()
