@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 7163901909773906765}
   - component: {fileID: 2282346862029704531}
   - component: {fileID: 8594890428115491359}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Weapon_AR_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -377,7 +377,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4363151836523108936}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: LeftHandGrip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -408,7 +408,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1114964069585464843}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: RightHandGrip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -439,7 +439,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5578976377699846415}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Muzzle
   m_TagString: Untagged
   m_Icon: {fileID: 0}

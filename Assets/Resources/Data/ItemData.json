@@ -124,7 +124,7 @@
     "UseItemParameterList": "",
     "Damage": 150.0,
     "MagazineSize": 5,
-    "AmmoType": "Item_Ammo_338",
+    "AmmoType": "Item_Ammo_762",
     "AttackInterval": 1.5,
     "Accuracy": 98.0,
     "Range": 300.0,
