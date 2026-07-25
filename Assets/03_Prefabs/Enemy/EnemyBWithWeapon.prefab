@@ -90,22 +90,22 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a9601507becac7c40830257bb1880cfa, type: 3}
---- !u!4 &4799432340500016567 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8861148705205678733, guid: a9601507becac7c40830257bb1880cfa, type: 3}
-  m_PrefabInstance: {fileID: 4062842273202970426}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &8286656641525942604 stripped
+--- !u!114 &2400144453059618809 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5431908267175253622, guid: a9601507becac7c40830257bb1880cfa, type: 3}
+  m_CorrespondingSourceObject: {fileID: -7409235934710187837, guid: a9601507becac7c40830257bb1880cfa, type: 3}
   m_PrefabInstance: {fileID: 4062842273202970426}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8781ff123b71b55419b9602ef124eaa5, type: 3}
+  m_Script: {fileID: 11500000, guid: 336cc452dbca28147808a1d5b181790c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TestWeaponBase
+  m_EditorClassIdentifier: Assembly-CSharp::TestTestWeaponBase
+--- !u!4 &4799432340500016567 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8861148705205678733, guid: a9601507becac7c40830257bb1880cfa, type: 3}
+  m_PrefabInstance: {fileID: 4062842273202970426}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7173406621536976844
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -721,7 +721,7 @@ PrefabInstance:
     - target: {fileID: 3319666887123574978, guid: 3f5bcf7b515f98943b387fc9f54cbd41, type: 3}
       propertyPath: _testWeapon
       value: 
-      objectReference: {fileID: 8286656641525942604}
+      objectReference: {fileID: 2400144453059618809}
     - target: {fileID: 3319666887123574978, guid: 3f5bcf7b515f98943b387fc9f54cbd41, type: 3}
       propertyPath: _battleAgentTeamType
       value: 3

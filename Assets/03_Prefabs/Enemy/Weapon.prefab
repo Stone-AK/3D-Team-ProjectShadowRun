@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2639530390828494839}
   - component: {fileID: 7321530975213944197}
   - component: {fileID: 5970755580697751211}
-  - component: {fileID: 5431908267175253622}
+  - component: {fileID: -7409235934710187837}
   m_Layer: 8
   m_Name: Weapon
   m_TagString: Untagged
@@ -113,7 +113,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &5431908267175253622
+--- !u!114 &-7409235934710187837
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -122,6 +122,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 2734047526925713837}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8781ff123b71b55419b9602ef124eaa5, type: 3}
+  m_Script: {fileID: 11500000, guid: 336cc452dbca28147808a1d5b181790c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TestWeaponBase
+  m_EditorClassIdentifier: Assembly-CSharp::TestTestWeaponBase

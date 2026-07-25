@@ -8,7 +8,7 @@ public class TestPlayer : MonoBehaviour,IDamageable,IBattleAgent
     public BattleAgentTeamType Team { get => _battleAgentTeamType; }
     public Transform Transform { get => this.transform; }
 
-    public  bool IsDead { get; }
+    public bool IsDead { get; }
     public void UseWeapon() { }//무기를 사용할때 공격자를 전달할수있음
 
    

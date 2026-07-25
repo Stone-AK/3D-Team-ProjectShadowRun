@@ -10,20 +10,23 @@ public enum BattleAgentTeamType
 
 public class EnemyBase : MonoBehaviour,IDamageable,IBattleAgent
 {
-    public TestWeaponBase CurrentWeapon { get; private set; }
+    public TestTestWeaponBase CurrentWeapon { get; private set; }
     [SerializeField] Transform _weaponSpawnPo;
-    [SerializeField] TestWeaponBase _testWeapon;
+    [SerializeField] TestTestWeaponBase _testWeapon;
     [SerializeField] BattleAgentTeamType _battleAgentTeamType;
     public Collider _enemyCollider;
     public float Hp { get; private set; } = 100;
     public bool IsDead { get; private set; } = false;
 
+    
     public float FrontDetectDistance = 20f; //추후에 데이터에서 받아와 사용
     public float SideDetectDistance = 10f;
     public float BackDetectDistance = 3f;
     public BattleAgentTeamType Team { get => _battleAgentTeamType; }
     public Transform Transform { get => this.transform; }
     public Action OnEnemyDeadAct;
+    public Action OnEnemyTakeDamageAct;
+    public CoverWallInfo CurrentCoverWallInfo { get ; set ; }
     //public EnemyData Data { get; private set; }
     public void Awake()
     {
@@ -34,7 +37,7 @@ public class EnemyBase : MonoBehaviour,IDamageable,IBattleAgent
     {
         Debug.DrawRay(transform.position + Vector3.up * 1f, transform.forward * 5f, Color.blue);
     }
-    public void SetWeapon(TestWeaponBase weapon)
+    public void SetWeapon(TestTestWeaponBase weapon)
     {
         CurrentWeapon = weapon;
 

@@ -182,7 +182,7 @@ MonoBehaviour:
     m_Bits: 136
   _sightLayerMask:
     serializedVersion: 2
-    m_Bits: 639
+    m_Bits: 255
   _shootLayerMask:
     serializedVersion: 2
     m_Bits: 767

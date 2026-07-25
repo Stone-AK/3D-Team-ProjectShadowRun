@@ -38,7 +38,7 @@ public class EnemyStateMachine : MonoBehaviour
     public IBattleAgent _targetBattleAgent;
     [HideInInspector] public Vector3 _lastDetectPosition; // 플레이어를 마지막으로 목격한 위치
 
-    public CoverWallInfo _currentCoverWallInfo;//현재 엄폐중인 위치
+    
 
     [SerializeField] private MeshRenderer _renderer;//디버깅용
 

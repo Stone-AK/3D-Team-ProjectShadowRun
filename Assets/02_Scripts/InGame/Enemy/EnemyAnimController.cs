@@ -5,6 +5,7 @@ public enum EnemyAnimState
     Idle,
     Move,
     Walk,
+    SideWalk,
     Attack,
     Reload,
     Dead
@@ -23,6 +24,7 @@ public class EnemyAnimController : MonoBehaviour
             case EnemyAnimState.Idle: break;
             case EnemyAnimState.Attack: _animator.SetBool("IsAttack",true); break;
             case EnemyAnimState.Reload: _animator.SetBool("IsReload",true); break;
+            case EnemyAnimState.SideWalk: _animator.SetBool("IsSideWalk", true); break;
             case EnemyAnimState.Dead: _animator.SetTrigger("IsDead"); break;
         }
     }
