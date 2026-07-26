@@ -14,7 +14,7 @@ public class StashUI : UIBase
     [SerializeField] private Transform Transform_InventoryContent;
     [SerializeField] private Transform Transform_StashContent;
 
-    [SerializeField] private StashItemSlotUI DragSlotUI;
+    private StashItemSlotUI DragSlotUI;
 
     private StashItemSlotViewModel _originSlotVm;
     private StashItemSlotViewModel _dragSlotVm;
@@ -105,6 +105,25 @@ public class StashUI : UIBase
         _stashVm.PropertyChanged += OnPropChanged_View;
         _stashVm.InvokeOnceOnInit();
 
+        if (DragSlotUI == null)
+        {
+            // this.transform (ShopUI 최상위 객체)의 자식으로 생성
+            // 이렇게 하면 ShopUI 패널 내에서 가장 나중에 그려지므로(Z-Order 최상단) 
+            // 다른 슬롯이나 배경에 가려지지 않습니다.
+            DragSlotUI = Instantiate(Prefab_StashItemSlotUI, this.transform);
+            DragSlotUI.gameObject.name = "DragSlotUI_Dynamic";
+            DragSlotUI.gameObject.SetActive(false);
+
+            // (매우 중요) 마우스를 따라다니는 이미지가 클릭을 막지 않도록 통과시켜 줍니다.
+            CanvasGroup canvasGroup = DragSlotUI.gameObject.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+            {
+                canvasGroup = DragSlotUI.gameObject.AddComponent<CanvasGroup>();
+            }
+            canvasGroup.blocksRaycasts = false;
+            canvasGroup.interactable = false;
+
+        }
         if (_dragSlotVm == null)
         {
             _dragSlotVm = new StashItemSlotViewModel { IsSlotEmpty = true };

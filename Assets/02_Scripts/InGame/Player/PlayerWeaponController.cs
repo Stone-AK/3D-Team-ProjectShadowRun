@@ -8,6 +8,7 @@ public class PlayerWeaponController : MonoBehaviour
     public int CurrentAmmo => _currentWeapon == null ? 0 : _currentWeapon.RemainBullets;
     public int CurrentReserveAmmo => GetCurrentReserveAmmo();
     public bool IsReloading => _isReloading;
+    public Transform CurrentLeftHandGrip { get; private set; }
 
     [SerializeField] private Transform PlayerWeaponSocket;
     [SerializeField] private LayerMask AimLayerMask = Physics.AllLayers;
@@ -263,9 +264,35 @@ public class PlayerWeaponController : MonoBehaviour
         _currentWeaponModel = weaponModel;
         _currentWeaponData = weaponData;
 
+        AlignWeaponToSocket();
         DisableWorldItemComponents(_currentWeaponObject);
         FindWeaponComponents(weaponData);
         AnimeController?.SwapWeaponPosture();
+    }
+
+    private void AlignWeaponToSocket()
+    {
+        Transform rightHandGrip = null;
+        Transform[] childTransforms = _currentWeaponObject.GetComponentsInChildren<Transform>(true);
+
+        foreach (Transform childTransform in childTransforms)
+        {
+            if (childTransform.name != "RightHandGrip")
+                continue;
+
+            rightHandGrip = childTransform;
+            break;
+        }
+
+        if (rightHandGrip == null)
+        {
+            Debug.LogError($"PlayerWeaponController: 생성된 무기에 RightHandGrip이 없습니다. Weapon: {_currentWeaponObject.name}");
+            return;
+        }
+
+        Quaternion rotationDifference = PlayerWeaponSocket.rotation * Quaternion.Inverse(rightHandGrip.rotation);
+        _currentWeaponObject.transform.rotation = rotationDifference * _currentWeaponObject.transform.rotation;
+        _currentWeaponObject.transform.position += PlayerWeaponSocket.position - rightHandGrip.position;
     }
 
     private void FindWeaponComponents(WeaponData weaponData)
@@ -286,11 +313,11 @@ public class PlayerWeaponController : MonoBehaviour
 
         foreach (Transform childTransform in childTransforms)
         {
-            if (childTransform.name != "Muzzle")
-                continue;
+            if (childTransform.name == "LeftHandGrip")
+                CurrentLeftHandGrip = childTransform;
 
-            _currentMuzzle = childTransform;
-            break;
+            if (childTransform.name == "Muzzle")
+                _currentMuzzle = childTransform;
         }
 
         if (_currentMuzzle == null)
@@ -319,6 +346,7 @@ public class PlayerWeaponController : MonoBehaviour
         _currentWeaponData = null;
         _currentWeapon = null;
         _currentMuzzle = null;
+        CurrentLeftHandGrip = null;
 
         if (wasReloading)
             OnReloadStateChanged?.Invoke(false);
