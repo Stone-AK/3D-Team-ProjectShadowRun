@@ -24,7 +24,7 @@ public class WeaponShotgun : TestWeaponBase
             Vector3 pelletDirection = CreatePelletDirection(fireRotation, i);
             ShotVisualData visualData;
 
-            if (Physics.Raycast(firePosition, pelletDirection, out RaycastHit hit, _currentWeaponStat.Range))
+            if (TryGetFirstValidHit(firePosition, pelletDirection, out RaycastHit hit))
             {
                 Debug.DrawRay(firePosition, pelletDirection * hit.distance, Color.red, _currentWeaponStat.Range);
 

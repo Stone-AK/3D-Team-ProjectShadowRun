@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 public class PlayerStatus : MonoBehaviour, IDamageable
 {
@@ -11,8 +12,14 @@ public class PlayerStatus : MonoBehaviour, IDamageable
     public PlayerModel Model { get; set; }
     public PlayerStatusViewModel ViewModel { get; set; }
 
-    public event System.Action<float> HealthChanged;
-    public event System.Action<float> StaminaChanged;
+    public event Action<float> HealthChanged;
+    public event Action<float> TemporaryHealthChanged;
+    public event Action<float> StaminaChanged;
+
+    public float TemporaryHP { get; private set; }
+
+    private const float TemporaryHPDecreaseInterval = 1f;
+    private float _temporaryHPDecreaseTimer;
 
     private void Awake()
     {
@@ -49,6 +56,11 @@ public class PlayerStatus : MonoBehaviour, IDamageable
 
         ViewModel = new PlayerStatusViewModel();
         ViewModel.InitPlayerViewModel(Model);
+    }
+
+    private void Update()
+    {
+        DecreaseTemporaryHP();
     }
 
     private void NormalizeLoadedInventory()
@@ -112,7 +124,21 @@ public class PlayerStatus : MonoBehaviour, IDamageable
 
         Debug.Log($"[PlayerStatus 진단] 피해 적용 전 - Damage: {damage}, CurrentHP: {Model.CurrentHP}, InventoryCount: {Model.InventoryItems.Count}");
 
-        Model.CurrentHP = Mathf.Clamp(Model.CurrentHP - damage, 0f, Model.MaxHP);
+        float remainingDamage = damage;
+
+        if (TemporaryHP > 0f)
+        {
+            float absorbedDamage = Mathf.Min(TemporaryHP, remainingDamage);
+
+            TemporaryHP -= absorbedDamage;
+            remainingDamage -= absorbedDamage;
+            TemporaryHealthChanged?.Invoke(TemporaryHP);
+        }
+
+        if (remainingDamage <= 0f)
+            return;
+
+        Model.CurrentHP = Mathf.Clamp(Model.CurrentHP - remainingDamage, 0f, Model.MaxHP);
         HealthChanged?.Invoke(Model.CurrentHP);
 
         Debug.Log(
@@ -124,16 +150,25 @@ public class PlayerStatus : MonoBehaviour, IDamageable
             Die();
     }
 
+    public void AddTemporaryHP(float amount)
+    {
+        if (amount <= 0f)
+            return;
+
+        if (TemporaryHP <= 0f)
+            _temporaryHPDecreaseTimer = 0f;
+
+        TemporaryHP += amount;
+        TemporaryHealthChanged?.Invoke(TemporaryHP);
+    }
+
     private void Die()
     {
         Debug.LogError($"[PlayerStatus 진단] Die 호출 - CurrentHP: {Model.CurrentHP}, InventoryCount: {Model.InventoryItems.Count} {System.Environment.StackTrace}");
 
-        Model.InventoryItems.Clear();
-        Model.EquippedHelmet = null;
-        Model.EquippedArmor = null;
-        Model.QuickSlotOne = null;
-        Model.QuickSlotTwo = null;
-        Model.QuickSlotThree = null;
+        InventoryManager.Instance.ClearInventory();
+
+        RestoreStatus();
 
         GameManager.Instance.ReturnToOutGame();
     }
@@ -163,6 +198,38 @@ public class PlayerStatus : MonoBehaviour, IDamageable
 
         Model.CurrentStamina = Mathf.Clamp(Model.CurrentStamina + amount, 0f, Model.MaxStamina);
         StaminaChanged?.Invoke(Model.CurrentStamina);
+    }
+
+    public void RestoreStatus()
+    {
+        if (Model == null)
+            return;
+
+        Model.CurrentHP = Model.MaxHP;
+        Model.CurrentStamina = Model.MaxStamina;
+        TemporaryHP = 0f;
+        _temporaryHPDecreaseTimer = 0f;
+
+        HealthChanged?.Invoke(Model.CurrentHP);
+        TemporaryHealthChanged?.Invoke(TemporaryHP);
+        StaminaChanged?.Invoke(Model.CurrentStamina);
+    }
+
+    private void DecreaseTemporaryHP()
+    {
+        if (TemporaryHP <= 0f)
+            return;
+
+        _temporaryHPDecreaseTimer += Time.deltaTime;
+
+        int decreaseAmount = Mathf.FloorToInt(_temporaryHPDecreaseTimer / TemporaryHPDecreaseInterval);
+
+        if (decreaseAmount <= 0)
+            return;
+
+        _temporaryHPDecreaseTimer -= decreaseAmount * TemporaryHPDecreaseInterval;
+        TemporaryHP = Mathf.Max(0f, TemporaryHP - decreaseAmount);
+        TemporaryHealthChanged?.Invoke(TemporaryHP);
     }
 
     private void OnDestroy()
