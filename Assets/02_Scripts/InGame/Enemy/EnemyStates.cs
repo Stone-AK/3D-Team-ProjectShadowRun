@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-using System.Dynamic;
-using UnityEditorInternal;
+﻿using System;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -70,7 +68,7 @@ public abstract class BaseEnemyState : IState
                 }
                 if (isInAngle)
                 {
-                    if (CanChaseTarget(targetObj))
+                    if (CanSeeTarget(targetObj))
                     {
                         if (newTarget == null)
                         {
@@ -170,7 +168,7 @@ public abstract class BaseEnemyState : IState
 
         return distance <= _stateMachine._enemyBase.BackDetectDistance;
     }
-    protected bool CanChaseTarget(IBattleAgent target) {//적이 내 시야에 있는지(방향 상관 안함)(거리도 상관 안하도록 변경 필요)
+    protected bool CanSeeTarget(IBattleAgent target) {//적이 내 시야에 있는지(방향 상관 안함)(거리도 상관 안하도록 변경 필요)
 
         if (target == null || target.Team == _stateMachine._enemyBase.Team)
             return false;
@@ -206,6 +204,25 @@ public abstract class BaseEnemyState : IState
 
             // 전투 유닛이 아닌 물체(엄폐물, 벽 등)를 먼저 맞으면 시야 차단
             return false;
+        }
+
+        return false;
+    }
+    public bool IsTargetCovered(IBattleAgent target)
+    {
+        if (target == null || target.Team == _stateMachine._enemyBase.Team)
+            return false;
+
+        Vector3 startPos = _stateMachine.transform.position + Vector3.up;
+        Vector3 targetPos = target.Transform.position + Vector3.up;
+
+        Vector3 direction = (targetPos - startPos).normalized;
+        float distance = Vector3.Distance(startPos, targetPos);
+
+        if (Physics.Raycast(startPos, direction, out RaycastHit hit, distance, _stateMachine._coverWallLayerMask))
+        {
+            Debug.LogError($"맞은 벽 : {hit.transform.name}, Layer : {LayerMask.LayerToName(hit.transform.gameObject.layer)}");
+            return true;
         }
 
         return false;
@@ -250,7 +267,7 @@ public class EnemyIdleState : BaseEnemyState
     {
         if (IsVisionUpdateTime(IDLE_VISION_INTERVAL))
         {
-            if (!CheckPlayer())//플레이어가 주변에 있을 때만 순찰로 전환
+            if (CheckPlayer())//플레이어가 주변에 있을 때만 순찰로 전환
             {
                 _stateMachine._patrolState.StartPatrol();
                 _stateMachine.ChangeState(_stateMachine._patrolState);
@@ -346,8 +363,8 @@ public class EnemyPatrolState : BaseEnemyState
     {
         float radius = _patrolRadius;
 
-        Vector2 dir = Random.insideUnitCircle.normalized;
-        float distance = Random.Range(5f, _patrolRadius);
+        Vector2 dir = UnityEngine.Random.insideUnitCircle.normalized;
+        float distance = UnityEngine.Random.Range(5f, _patrolRadius);
 
         Vector3 randomPos = _stateMachine.transform.position + new Vector3(dir.x, 0f, dir.y) * distance;
 
@@ -414,7 +431,7 @@ public class EnemyChaseState : BaseEnemyState
         }
         if (IsVisionUpdateTime(COMBAT_VISION_INTERVAL))
         {
-            if (CanChaseTarget(_stateMachine._targetBattleAgent))
+            if (CanSeeTarget(_stateMachine._targetBattleAgent))
             {
                 lostTimer = 0f;
 
@@ -469,6 +486,9 @@ public class EnemyAttackState : BaseEnemyState
     private float targetLostTimer = 0f;
     private float maxTargetLostTime = 0.8f;
 
+    private float _hideWaitTimer = 0f;
+    private float _maxHideWaitTime = 5f;
+
     private AttackPhase currentPhase;
     private int maxBurstCount = 3;
     private int currentBurstCount=0;
@@ -476,6 +496,9 @@ public class EnemyAttackState : BaseEnemyState
     private float burstInterval = 0.3f;
     private float burstTimer;
 
+    private bool _canSee;
+    private bool _IsCovered;
+    private bool _canAttack;
     public EnemyAttackState(EnemyStateMachine stateMachine) : base(stateMachine)
     {
         this._detectionRadius = 20f; // 사격 감지 범위
@@ -498,46 +521,55 @@ public class EnemyAttackState : BaseEnemyState
 
     public override void UpdateState()
     {
+        if (_stateMachine._targetBattleAgent.IsDead == true)
+        {
+            _stateMachine.ClearTarget();
+            _stateMachine._patrolState.StartSearch();
+            _stateMachine.ChangeState(_stateMachine._patrolState);
+        }
+        if (_stateMachine._targetBattleAgent == null)
+        {
+            return;
+        }
+
         if (IsVisionUpdateTime(COMBAT_VISION_INTERVAL))
         {
-            if (_stateMachine._targetBattleAgent.IsDead == true) 
+            _canSee = CanSeeTarget(_stateMachine._targetBattleAgent);
+            _IsCovered = IsTargetCovered(_stateMachine._targetBattleAgent);
+            _canAttack = CanAttackTargetAgent();
+        }
+        if (_canSee)
+        {
+            targetLostTimer = 0f;
+            _stateMachine._lastDetectPosition = _stateMachine._targetTransform.position;
+        }
+        else
+        {
+            targetLostTimer += COMBAT_VISION_INTERVAL;
+
+            if (targetLostTimer >= maxTargetLostTime)
             {
-                _stateMachine.ClearTarget();
-                _stateMachine._patrolState.StartSearch();
-                _stateMachine.ChangeState(_stateMachine._patrolState);
-            }
-            if (_stateMachine._targetBattleAgent == null) 
-            {
-                return; 
+                _stateMachine.ChangeState(_stateMachine._chaseState);
+                Debug.Log("[Attack] 플레이어가 시야에서 완전히 사라졌습니다. 추격으로 전환합니다.");
             }
 
-            // 플레이어 탐지 및 위치 갱신
-            bool detected = CanChaseTarget(_stateMachine._targetBattleAgent);
-
-            if (detected)
-            {
-                targetLostTimer = 0f;
-                _stateMachine._lastDetectPosition = _stateMachine._targetTransform.position;
-            }
-            else
-            {
-                targetLostTimer += COMBAT_VISION_INTERVAL;
-
-                if (targetLostTimer >= maxTargetLostTime)
-                {
-                    _stateMachine.ChangeState(_stateMachine._chaseState);
-                    Debug.Log("[Attack] 플레이어가 시야에서 완전히 사라졌습니다. 추격으로 전환합니다.");
-                }
-
-                return;
-            }
+            return;
+        }
+        if (_IsCovered)
+        {
+            _hideWaitTimer += Time.deltaTime;
             // 현재 사격 가능한 상황인지 판단
-            if (!CanAttackTargetAgent())
+            if (!_canAttack && _hideWaitTimer >= _maxHideWaitTime)
             {
                 _stateMachine.ChangeState(_stateMachine._chaseState);
                 Debug.Log("[Attack] 사격이 불가능 합니다. 추격으로 전환합니다.");
                 return;
             }
+            return;
+        }
+        else
+        {
+            _hideWaitTimer = 0f;
         }
         RotateTowardsToPoint(aimPosition);
         switch (currentPhase)
@@ -577,6 +609,7 @@ public class EnemyAttackState : BaseEnemyState
                 }
                 break;
         }
+
     }
 
     public override void ExitState()
@@ -626,6 +659,7 @@ public class EnemyReloadState : BaseEnemyState
         _reloadTimer = 0f;
         Debug.Log("[Reload] 재장전 시작.");
         _stateMachine.SetDebugStateColor(EnemyState.Reload);
+        _stateMachine._agent.speed = 0f;
         _stateMachine._animController.ChangeAnimState(EnemyAnimState.Reload);
     }  // 이 상태로 처음 들어왔을 때 
     public override void UpdateState() 
@@ -633,7 +667,7 @@ public class EnemyReloadState : BaseEnemyState
         // 전투 중 장전이었다면 기존 타겟만 계속 확인
         if (_stateMachine._targetBattleAgent != null)
         {
-            if (CanChaseTarget(_stateMachine._targetBattleAgent))
+            if (CanSeeTarget(_stateMachine._targetBattleAgent))
             {
                 _stateMachine._lastDetectPosition = _stateMachine._targetTransform.position;
             }
@@ -921,6 +955,8 @@ public class EnemyCoverActionState : BaseEnemyState
         public override void EnterState()
         {
             _stateMachine._agent.ResetPath();
+            _stateMachine.ClearTarget();
+            _stateMachine._enemyBase.CurrentCoverWallInfo.Wall.ReleaseWallUser(_stateMachine._enemyBase);
             _stateMachine._enemyBase._enemyCollider.enabled = false;
             _stateMachine._agent.enabled = false;
             _stateMachine._animController.ChangeAnimState(EnemyAnimState.Dead);

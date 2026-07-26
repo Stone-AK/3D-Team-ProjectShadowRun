@@ -51,6 +51,7 @@ public class EnemyBase : MonoBehaviour,IDamageable,IBattleAgent
         float newHp = Hp - damage;
         Hp = (newHp>=0) ? newHp : 0;
         Debug.Log($"{damage}피해 입음, 남은 체력 {Hp}");
+        OnEnemyTakeDamageAct?.Invoke();
         if (Hp <= 0 && IsDead == false) 
         {
             IsDead = true;
@@ -61,7 +62,7 @@ public class EnemyBase : MonoBehaviour,IDamageable,IBattleAgent
     public void Initialize(EnemyData enemyData) { }
     public void OnEnemyDead() 
     {
-        Debug.Log("OnEnemyDeadAct?.Invoke");
+        Debug.Log("OnEnemyDeadAct?.Invoke");        
         OnEnemyDeadAct?.Invoke();
     }
 }

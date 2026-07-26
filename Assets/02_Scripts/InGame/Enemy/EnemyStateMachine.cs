@@ -79,6 +79,7 @@ public class EnemyStateMachine : MonoBehaviour
     private void Start()
     {
         _enemyBase.OnEnemyDeadAct += EnterDeadState;
+        _enemyBase.OnEnemyTakeDamageAct += OnEnemyTakeDamage;
         // 시작 상태 지정 
         ChangeState(_idleState);
     }
@@ -150,5 +151,12 @@ public class EnemyStateMachine : MonoBehaviour
     public void OnDeadAnimationFinished()
     {
         gameObject.SetActive(false);
+    }
+    public void OnEnemyTakeDamage() 
+    {
+        if (CurrentState == _patrolState) 
+        {
+            _patrolState.StartSearch();
+        }  
     }
 }
