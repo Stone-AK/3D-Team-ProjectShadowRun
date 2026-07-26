@@ -35,6 +35,8 @@ public class PlayerStatus : MonoBehaviour, IDamageable
             Model = new PlayerModel();
         }
 
+        NormalizeLoadedInventory();
+
         if (Model.MaxHP <= 0f)
         {
             Model.MaxHP = MaxHP;
@@ -49,13 +51,74 @@ public class PlayerStatus : MonoBehaviour, IDamageable
         ViewModel.InitPlayerViewModel(Model);
     }
 
+    private void NormalizeLoadedInventory()
+    {
+        if (Model.InventoryItems == null)
+            Model.InventoryItems = new System.Collections.Generic.List<ItemModel>();
+
+        foreach (ItemModel inventoryItem in Model.InventoryItems)
+        {
+            if (inventoryItem == null)
+                continue;
+
+            if (string.IsNullOrWhiteSpace(inventoryItem.InstanceId))
+                inventoryItem.InstanceId = System.Guid.NewGuid().ToString();
+        }
+
+        System.Collections.Generic.HashSet<string> connectedInstanceIds = new System.Collections.Generic.HashSet<string>();
+
+        Model.QuickSlotOne = FindInventoryItem(Model.QuickSlotOne, connectedInstanceIds);
+        Model.QuickSlotTwo = FindInventoryItem(Model.QuickSlotTwo, connectedInstanceIds);
+        Model.QuickSlotThree = FindInventoryItem(Model.QuickSlotThree, connectedInstanceIds);
+    }
+
+    private ItemModel FindInventoryItem(ItemModel quickSlotItem, System.Collections.Generic.HashSet<string> connectedInstanceIds)
+    {
+        if (quickSlotItem == null)
+            return null;
+
+        if (!string.IsNullOrWhiteSpace(quickSlotItem.InstanceId))
+        {
+            foreach (ItemModel inventoryItem in Model.InventoryItems)
+            {
+                if (inventoryItem == null || inventoryItem.InstanceId != quickSlotItem.InstanceId)
+                    continue;
+
+                if (!connectedInstanceIds.Add(inventoryItem.InstanceId))
+                    return null;
+
+                return inventoryItem;
+            }
+        }
+
+        foreach (ItemModel inventoryItem in Model.InventoryItems)
+        {
+            if (inventoryItem == null || inventoryItem.ItemId != quickSlotItem.ItemId)
+                continue;
+
+            if (!connectedInstanceIds.Add(inventoryItem.InstanceId))
+                continue;
+
+            return inventoryItem;
+        }
+
+        return null;
+    }
+
     public void TakeDamage(float damage)
     {
         if (damage <= 0f || Model.CurrentHP <= 0f)
             return;
 
+        Debug.Log($"[PlayerStatus 진단] 피해 적용 전 - Damage: {damage}, CurrentHP: {Model.CurrentHP}, InventoryCount: {Model.InventoryItems.Count}");
+
         Model.CurrentHP = Mathf.Clamp(Model.CurrentHP - damage, 0f, Model.MaxHP);
         HealthChanged?.Invoke(Model.CurrentHP);
+
+        Debug.Log(
+            $"[PlayerStatus 진단] 피해 적용 후 - CurrentHP: {Model.CurrentHP}, " +
+            $"InventoryCount: {Model.InventoryItems.Count}"
+        );
 
         if (Model.CurrentHP <= 0f)
             Die();
@@ -63,6 +126,8 @@ public class PlayerStatus : MonoBehaviour, IDamageable
 
     private void Die()
     {
+        Debug.LogError($"[PlayerStatus 진단] Die 호출 - CurrentHP: {Model.CurrentHP}, InventoryCount: {Model.InventoryItems.Count} {System.Environment.StackTrace}");
+
         Model.InventoryItems.Clear();
         Model.EquippedHelmet = null;
         Model.EquippedArmor = null;

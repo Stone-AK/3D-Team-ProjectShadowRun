@@ -152,7 +152,7 @@ public class TestWeaponBase : MonoBehaviour
                 HitTransform = hit.transform
             };
 
-            ShotFired?.Invoke(visualData);
+            InvokeShotFired(visualData);
         }
         else
         {
@@ -167,9 +167,14 @@ public class TestWeaponBase : MonoBehaviour
                 HitTransform = null
             };
 
-            ShotFired?.Invoke(visualData);
+            InvokeShotFired(visualData);
         }
 
+    }
+
+    protected void InvokeShotFired(ShotVisualData visualData)
+    {
+        ShotFired?.Invoke(visualData);
     }
 
     public virtual int Reload(int bulletAmount)
