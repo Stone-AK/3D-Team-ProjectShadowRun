@@ -26,7 +26,8 @@ public enum UIType
     ShopItemPopupUI,
     StashUI,
     TitleUI,
-    PauseUI
+    PauseUI,
+    WeaponCustomUI
 }
 
 public static class UIManagerExtension

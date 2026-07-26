@@ -2,12 +2,6 @@
 
 public class ShopObj : MonoBehaviour, ILobbyInteractable
 {
-    private PlayerInputHandler InputHandler;
-
-    private KeyCode _interactKey = KeyCode.E;
-
-    private bool _isPlayerInside = false;
-
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))

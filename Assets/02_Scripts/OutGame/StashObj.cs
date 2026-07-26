@@ -2,8 +2,6 @@
 
 public class StashObj : MonoBehaviour, ILobbyInteractable
 {
-    private PlayerInputHandler InputHandler;
-
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))

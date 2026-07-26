@@ -338,3 +338,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8c7fdc5117e214bbfee2a5eb6466e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponPartsSlotUI
+  Image_ItemIcon: {fileID: 887412421570813968}
+  Text_PartsTypeName: {fileID: 2713296847957799966}
