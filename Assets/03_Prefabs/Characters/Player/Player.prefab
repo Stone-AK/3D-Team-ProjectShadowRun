@@ -2285,30 +2285,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatus
   MaxHP: 100
   MaxStamina: 100
---- !u!114 &900000000000000001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7834500494340706646}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d0004c78befc8f41a668d84ec80bc79, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerQuickSlotHandler
---- !u!114 &900000000000000002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7834500494340706646}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0949fefc590670e49a83711a2c9fcadc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ActivateMedicine
 --- !u!114 &5159432160104867375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2338,6 +2314,8 @@ MonoBehaviour:
   GroundingForce: 50
   GroundingDisableDuration: 0.15
   GroundingReleaseDelay: 0.1
+  SafeFallSpeed: 8
+  FallDamagePerSpeed: 10
   StandingCollider: {fileID: 4907903416859211107}
   ProneCollider: {fileID: 7588999015336974005}
   Head: {fileID: 6414859238678251675}
@@ -2576,6 +2554,30 @@ MonoBehaviour:
   mainCamera: {fileID: 0}
   inputHandler: {fileID: 2594667027422455901}
   range: 100
+--- !u!114 &900000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7834500494340706646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d0004c78befc8f41a668d84ec80bc79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerQuickSlotHandler
+--- !u!114 &900000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7834500494340706646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0949fefc590670e49a83711a2c9fcadc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ActivateMedicine
 --- !u!1 &7918257139273063620
 GameObject:
   m_ObjectHideFlags: 0
@@ -2808,7 +2810,7 @@ Transform:
   m_GameObject: {fileID: 8761221876698149512}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.5, z: 0}
+  m_LocalPosition: {x: 0, y: -0.503, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

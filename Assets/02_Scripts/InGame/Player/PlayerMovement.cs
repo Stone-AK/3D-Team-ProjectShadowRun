@@ -121,6 +121,9 @@ public class PlayerMovement : MonoBehaviour
         InputHandler.JumpPerformed -= Jump;
         InputHandler.CrouchPerformed -= ToggleCrouch;
         InputHandler.PronePerformed -= ToggleProne;
+
+        if (_rigidbody != null)
+            _rigidbody.useGravity = true;
     }
     private void Update()
     {
@@ -136,6 +139,7 @@ public class PlayerMovement : MonoBehaviour
         CheckGround();
         UpdateFallDamage();
         ApplyGroundingForce();
+        UpdateIdleGroundHold();
     }
 
     private void CheckGround()
@@ -163,6 +167,18 @@ public class PlayerMovement : MonoBehaviour
             Vector3.down * GroundingForce,
             ForceMode.Acceleration
         );
+    }
+
+    private void UpdateIdleGroundHold()
+    {
+        bool hasMoveInput = InputHandler.MoveInput.sqrMagnitude > 0.01f;
+        bool isJumping = Time.time < _groundingDisabledUntil;
+        bool shouldHoldPosition = _isGrounded && !hasMoveInput && !isJumping;
+
+        _rigidbody.useGravity = !shouldHoldPosition;
+
+        if (shouldHoldPosition)
+            _rigidbody.linearVelocity = Vector3.zero;
     }
 
     private void UpdateFallDamage()
@@ -261,6 +277,7 @@ public class PlayerMovement : MonoBehaviour
             return;
 
         _groundingDisabledUntil = Time.time + GroundingDisableDuration;
+        _rigidbody.useGravity = true;
         _rigidbody.AddForce(Vector3.up * JumpPower, ForceMode.Impulse);
     }
 
