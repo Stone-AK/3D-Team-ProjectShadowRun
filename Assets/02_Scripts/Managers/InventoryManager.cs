@@ -474,26 +474,50 @@ public class InventoryManager : MonoBehaviour
 
         ItemData itemData = DataManager.Instance.GetItemData(stack.ItemId);
 
-        if (itemData == null || itemData.UseItemType != "HealStat")
-            return false;
-
-        if (PlayerStatus.Instance.Model.CurrentHP >= PlayerStatus.Instance.Model.MaxHP)
+        if (itemData == null)
             return false;
 
         itemData.ParseUseItemParameters();
 
-        if (!itemData.TryGetParameter("HealAmount", out float healAmount))
+        if (OnConsumableUsed == null)
             return false;
 
-        if (healAmount <= 0f)
+        if (itemData.UseItemType == "HealStat")
+        {
+            if (PlayerStatus.Instance.Model.CurrentHP >= PlayerStatus.Instance.Model.MaxHP)
+                return false;
+
+            if (!itemData.TryGetParameter("HealAmount", out float healAmount) || healAmount <= 0f)
+                return false;
+        }
+        else if (itemData.UseItemType == "BuffStat")
+        {
+            bool hasIgnorePain =
+                itemData.TryGetParameter("IgnorePain", out float temporaryHP) &&
+                temporaryHP > 0f;
+
+            bool hasRegenHP =
+                itemData.TryGetParameter("RegenHP", out float regenHP) &&
+                regenHP > 0f;
+
+            bool hasSpeedBoost =
+                itemData.TryGetParameter("SpeedBoost", out float speedBoost) &&
+                speedBoost > 0f;
+
+            if (!hasIgnorePain && !hasRegenHP && !hasSpeedBoost)
+                return false;
+        }
+        else
+        {
             return false;
+        }
 
         bool removed = TryRemoveItem(stack.ItemId, 1);
 
         if (!removed)
             return false;
 
-        PlayerStatus.Instance.RecoverHP(healAmount);
+        OnConsumableUsed.Invoke(itemData);
         OnQuickSlotChanged?.Invoke();
 
         return true;

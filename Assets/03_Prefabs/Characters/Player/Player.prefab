@@ -2244,6 +2244,8 @@ GameObject:
   - component: {fileID: 8807692790497756050}
   - component: {fileID: 8707728036307335514}
   - component: {fileID: 4968580984755581381}
+  - component: {fileID: 900000000000000001}
+  - component: {fileID: 900000000000000002}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -2283,6 +2285,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatus
   MaxHP: 100
   MaxStamina: 100
+--- !u!114 &900000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7834500494340706646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d0004c78befc8f41a668d84ec80bc79, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerQuickSlotHandler
+--- !u!114 &900000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7834500494340706646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0949fefc590670e49a83711a2c9fcadc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ActivateMedicine
 --- !u!114 &5159432160104867375
 MonoBehaviour:
   m_ObjectHideFlags: 0

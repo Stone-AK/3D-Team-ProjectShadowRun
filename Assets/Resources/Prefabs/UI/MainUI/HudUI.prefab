@@ -128,12 +128,13 @@ RectTransform:
   m_Children:
   - {fileID: 497225798015459401}
   - {fileID: 7514552855183225006}
+  - {fileID: 6350173331276827695}
   m_Father: {fileID: 7445681430575164209}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 610.7628, y: 213.813}
+  m_SizeDelta: {x: 610.7628, y: 373.659}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1402631582468513547
 GameObject:
@@ -381,6 +382,11 @@ MonoBehaviour:
   StaminaSlider: {fileID: 5554273240155894252}
   Text_Ammo: {fileID: 8631302130363068789}
   ItemInfo: {fileID: 8414688100120764207}
+  BuffSlotContainer: {fileID: 6350173331276827695}
+  BuffSlotPrefab: {fileID: 8132525347736386411, guid: 525cbbecec823dc44b4f21c2e0c74b03, type: 3}
+  IconDotHeal: {fileID: 21300000, guid: 493a796ea4bee3f40aac33a585c91842, type: 3}
+  IconShield: {fileID: 21300000, guid: 51b42674b7e625041906f3f31b5526ba, type: 3}
+  IconSpeed: {fileID: 21300000, guid: 865f1b1f2dbf2fa408a78198c4511ce7, type: 3}
 --- !u!1 &3355038296289991247
 GameObject:
   m_ObjectHideFlags: 0
@@ -627,11 +633,11 @@ RectTransform:
   - {fileID: 5036755202271505892}
   m_Father: {fileID: 2991068027131080871}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 50}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &3920789697300039460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -993,6 +999,66 @@ RectTransform:
   m_AnchoredPosition: {x: 2.5, y: 0}
   m_SizeDelta: {x: -5, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &5895221063749013698
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6350173331276827695}
+  - component: {fileID: 6001586036897129816}
+  m_Layer: 0
+  m_Name: BuffSlotContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &6350173331276827695
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5895221063749013698}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2991068027131080871}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -0.002166748, y: -169.66}
+  m_SizeDelta: {x: 0.0004, y: 204}
+  m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &6001586036897129816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5895221063749013698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 0
+  m_StartCorner: 0
+  m_StartAxis: 1
+  m_CellSize: {x: 100, y: 100}
+  m_Spacing: {x: 2, y: 1}
+  m_Constraint: 1
+  m_ConstraintCount: 6
 --- !u!1 &7058156375213345980
 GameObject:
   m_ObjectHideFlags: 0
@@ -1525,11 +1591,11 @@ RectTransform:
   - {fileID: 4339728832869114200}
   m_Father: {fileID: 2991068027131080871}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -50, y: -1}
-  m_SizeDelta: {x: -100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -0.0022888184, y: -69.659}
+  m_SizeDelta: {x: 0, y: 100}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &5554273240155894252
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -19,6 +19,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float SprintSpeed = 8f;
     [SerializeField] private float JumpPower = 5f;
 
+    private float _speedBoost;
+    private float _speedBoostEndTime;
+
+    public bool IsSpeedBoostActive => _speedBoost > 0f;
+    public event System.Action<bool> SpeedBoostStateChanged;
+
     [Header("Stamina")]
     [SerializeField] private float SprintStaminaUsePerSecond = 20f;
     [SerializeField] private float StaminaRecoveryPerSecond = 15f;
@@ -119,6 +125,7 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         UpdateHeadPosition();
+        UpdateSpeedBoost();
     }
 
 
@@ -208,19 +215,41 @@ public class PlayerMovement : MonoBehaviour
     private float GetCurrentMoveSpeed(bool isSprinting)
     {
         AnimeController.SetRun(isSprinting);
+
+        float currentSpeed;
+
         if (_currentPosture == PlayerPosture.Prone)
-            return ProneSpeed;
+            currentSpeed = ProneSpeed;
+        else if (_currentPosture == PlayerPosture.Crouching)
+            currentSpeed = CrouchSpeed;
+        else if (isSprinting)
+            currentSpeed = SprintSpeed;
+        else if (InputHandler.IsWalkPressed)
+            currentSpeed = WalkSpeed;
+        else
+            currentSpeed = MoveSpeed;
 
-        if (_currentPosture == PlayerPosture.Crouching)
-            return CrouchSpeed;
+        return currentSpeed + _speedBoost;
+    }
 
-        if (isSprinting)
-            return SprintSpeed;
+    public void ApplySpeedBoost(float amount, float duration)
+    {
+        if (amount <= 0f || duration <= 0f)
+            return;
 
-        if (InputHandler.IsWalkPressed)
-            return WalkSpeed;
+        _speedBoost = amount;
+        _speedBoostEndTime = Time.time + duration;
+        SpeedBoostStateChanged?.Invoke(true);
+    }
 
-        return MoveSpeed;
+    private void UpdateSpeedBoost()
+    {
+        if (!IsSpeedBoostActive || Time.time < _speedBoostEndTime)
+            return;
+
+        _speedBoost = 0f;
+        _speedBoostEndTime = 0f;
+        SpeedBoostStateChanged?.Invoke(false);
     }
 
     private void Jump()

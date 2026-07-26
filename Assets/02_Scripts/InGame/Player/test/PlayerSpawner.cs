@@ -89,6 +89,7 @@ public class PlayerSpawner : MonoBehaviour
         PlayerStatus playerStatus = player.GetComponent<PlayerStatus>();
         PlayerItemInteractor itemInteractor = player.GetComponent<PlayerItemInteractor>();
         PlayerWeaponController weaponController = player.GetComponent<PlayerWeaponController>();
+        ActivateMedicine activateMedicine = player.GetComponent<ActivateMedicine>();
 
         if (playerStatus == null)
         {
@@ -126,5 +127,6 @@ public class PlayerSpawner : MonoBehaviour
         hudView.BindViewModel(playerStatus.ViewModel);
         hudView.BindItemInfoUI(itemInteractor);
         hudView.BindWeaponController(weaponController);
+        hudView.BindBuffStatus(playerStatus, activateMedicine);
     }
 }
