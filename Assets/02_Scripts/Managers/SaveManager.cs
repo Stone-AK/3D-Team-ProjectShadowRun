@@ -87,6 +87,8 @@ public class SaveManager : MonoBehaviour
             CurrentDurability = 100f
         };
         newPlayer.InventoryItems.Add(mainWeapon);
+        newPlayer.StashItems.Add(mainWeapon);
+
 
         ItemModel emergencyMedkit = new ItemModel
         {
@@ -103,6 +105,7 @@ public class SaveManager : MonoBehaviour
             ItemId = "Item_Ammo_556",
             CurrentStackCount = 60
         };
+        newPlayer.InventoryItems.Add(reserveAmmo);
         newPlayer.StashItems.Add(reserveAmmo);
 
         ItemModel repairTool = new ItemModel
@@ -121,7 +124,9 @@ public class SaveManager : MonoBehaviour
         };
         newPlayer.StashItems.Add(assetGold);
 
+        SavePlayerData(newPlayer);
         UnityEngine.Debug.Log("SaveManager: [프로젝트 섀도우 런] 실제 테이블 기준 초기 보급품이 지급된 신규 세이브를 생성했습니다.");
+
         return newPlayer;
     }
 }

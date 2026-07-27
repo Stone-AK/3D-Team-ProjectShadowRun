@@ -45,11 +45,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: a9f4b6b50ce93de45b2339ed648b6337
-    m_Address: Assets/03_Prefabs/Environment/Tileset/Tileset01/Tiie_A03.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b046b459750fb3d41bf17dd89367381a
     m_Address: Assets/03_Prefabs/Environment/Tileset/Tileset01/Tiie_Start_01.prefab
     m_ReadOnly: 0

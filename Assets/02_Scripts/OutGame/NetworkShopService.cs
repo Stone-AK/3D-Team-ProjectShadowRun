@@ -22,7 +22,7 @@ public class NetworkShopService
 
         foreach (var slot in vm.ShopItemSlotList) slot.IsSlotEmpty = true;
 
-        List<string> fixedItemIds = new List<string> { "Item_Medical_Bandage", "Item_Food_Water" };
+        List<string> fixedItemIds = new List<string> { "Item_Medical_Bandage", "Item_Food_Water", "Item_Ammo_556" };
         foreach (var fixedId in fixedItemIds)
         {
             if (slotIndex >= vm.ShopItemSlotList.Count)
