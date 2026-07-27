@@ -114,15 +114,7 @@ public class NetworkWeaponCustomService
     {
         if (_cachedTargetWeaponModel != null && InventoryManager.Instance != null)
         {
-            if (_cachedTargetWeaponModel is WeaponModel weapon)
-            {
-                InventoryManager.Instance.TryAddWeapon(weapon);
-            }
-            else
-            {
-                var itemData = DataManager.Instance.GetItemData(_cachedTargetWeaponModel.ItemId);
-                InventoryManager.Instance.TryAddItem(itemData, _cachedTargetWeaponModel.CurrentStackCount);
-            }
+            NetworkManager.Inst.TransferService.PlaceItemSafely(_cachedTargetWeaponModel, ShopItemSlotType.Inventory);
         }
         ClearTargetWeapon();
     }
@@ -165,7 +157,6 @@ public class NetworkWeaponCustomService
             }
             else
             {
-                Debug.LogWarning("무기 데이터가 아니므로 파츠 슬롯을 생성하지 않습니다.");
                 return;
             }
         }
@@ -202,115 +193,6 @@ public class NetworkWeaponCustomService
             vm.PartsSlotList.Add(slotVm);
         }
         vm.InvokeOnceOnInit();
-    }
-
-    public ItemModel PickupItemSafely(string itemDataId, string uniqueId, ShopItemSlotType slotType)
-    {
-        var itemData = DataManager.Instance.GetItemData(itemDataId);
-        if (itemData == null) return null;
-
-        if (slotType == ShopItemSlotType.Inventory)
-        {
-            var items = PlayerStatus.Instance.Model.InventoryItems;
-            for (int i = 0; i < items.Count; i++)
-            {
-                if ((items[i].InstanceId == uniqueId && !string.IsNullOrEmpty(uniqueId)) ||
-                    (items[i].ItemId == itemDataId && string.IsNullOrEmpty(uniqueId)))
-                {
-                    var item = items[i];
-                    items.RemoveAt(i);
-                    return item;
-                }
-            }
-        }
-        else if (slotType == ShopItemSlotType.Stash)
-        {
-            var stashItems = PlayerStatus.Instance.Model.StashItems;
-            if (stashItems != null)
-            {
-                for (int i = 0; i < stashItems.Count; i++)
-                {
-                    if (stashItems[i].InstanceId == uniqueId && stashItems[i].ItemId == itemDataId)
-                    {
-                        var item = stashItems[i];
-                        stashItems.RemoveAt(i);
-                        return item;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    public void PlaceItemSafely(ItemModel itemModel, ShopItemSlotType targetSlotType)
-    {
-        if (itemModel == null) return;
-        var itemData = DataManager.Instance.GetItemData(itemModel.ItemId);
-
-        if (targetSlotType == ShopItemSlotType.Inventory)
-        {
-            var inventoryItems = PlayerStatus.Instance.Model.InventoryItems;
-
-            if (itemData.ItemType == "Weapon")
-            {
-                inventoryItems.Add(itemModel);
-            }
-            else
-            {
-                bool merged = false;
-                foreach (var invItem in inventoryItems)
-                {
-                    if (invItem.ItemId == itemModel.ItemId && invItem.CurrentStackCount < itemData.MaxStackCount)
-                    {
-                        int space = itemData.MaxStackCount - invItem.CurrentStackCount;
-                        int addAmount = Mathf.Min(space, itemModel.CurrentStackCount);
-                        invItem.CurrentStackCount += addAmount;
-                        itemModel.CurrentStackCount -= addAmount;
-
-                        if (itemModel.CurrentStackCount <= 0)
-                        {
-                            merged = true;
-                            break;
-                        }
-                    }
-                }
-                if (!merged && itemModel.CurrentStackCount > 0)
-                {
-                    inventoryItems.Add(itemModel);
-                }
-            }
-        }
-        else if (targetSlotType == ShopItemSlotType.Stash)
-        {
-            var stashItems = PlayerStatus.Instance.Model.StashItems;
-            if (stashItems == null) { stashItems = new List<ItemModel>(); PlayerStatus.Instance.Model.StashItems = stashItems; }
-
-            if (itemData.ItemType == "Weapon")
-            {
-                stashItems.Add(itemModel);
-            }
-            else
-            {
-                bool merged = false;
-                foreach (var stashItem in stashItems)
-                {
-                    if (stashItem.ItemId == itemModel.ItemId && stashItem.CurrentStackCount < itemData.MaxStackCount)
-                    {
-                        int space = itemData.MaxStackCount - stashItem.CurrentStackCount;
-                        int addAmount = Mathf.Min(space, itemModel.CurrentStackCount);
-                        stashItem.CurrentStackCount += addAmount;
-                        itemModel.CurrentStackCount -= addAmount;
-
-                        if (itemModel.CurrentStackCount <= 0)
-                        {
-                            merged = true;
-                            break;
-                        }
-                    }
-                }
-                if (!merged && itemModel.CurrentStackCount > 0) stashItems.Add(itemModel);
-            }
-        }
     }
 
     public bool TryEquipPart(WeaponPartsSlotViewModel targetSlot, ItemModel partModel)
@@ -355,7 +237,7 @@ public class NetworkWeaponCustomService
 
         if (removedPart != null)
         {
-            PlayerStatus.Instance.Model.InventoryItems.Add(removedPart);
+            NetworkManager.Inst.TransferService.PlaceItemSafely(removedPart, ShopItemSlotType.Inventory);
         }
 
         targetSlot.ItemUniqueId = string.Empty;
