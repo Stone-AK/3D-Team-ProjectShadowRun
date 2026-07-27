@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System;
 
-public class PlayerStatus : MonoBehaviour, IDamageable
+public class PlayerStatus : MonoBehaviour, IDamageable,IBattleAgent
 {
     public static PlayerStatus Instance { get; set; }
 
@@ -20,6 +20,10 @@ public class PlayerStatus : MonoBehaviour, IDamageable
 
     private const float TemporaryHPDecreaseInterval = 1f;
     private float _temporaryHPDecreaseTimer;
+    public BattleAgentTeamType Team { get; } = BattleAgentTeamType.Player;
+    public bool IsDead { get; } = false;
+    public Transform Transform { get=>transform; }//IBattleAgent인터페이스 매서드
+
 
     private void Awake()
     {
@@ -239,4 +243,5 @@ public class PlayerStatus : MonoBehaviour, IDamageable
             Instance = null;
         }
     }
+
 }

@@ -734,7 +734,7 @@ public class EnemyCoverActionState : BaseEnemyState
     public EnemyCoverActionState(EnemyStateMachine stateMachine) : base(stateMachine) { }
     public override void EnterState()
     {
-        _stateMachine._agent.speed = 2f;
+        _stateMachine._agent.speed = 3.5f;
         _stateMachine._agent.stoppingDistance = 0.5f;
         Debug.Log("커버액션 엔터");
     }  // 이 상태로 처음 들어왔을 때 

@@ -20,7 +20,7 @@ public interface IBattleAgent
     Transform Transform { get; }
 
     bool IsDead { get; }
-    void UseWeapon();//무기를 사용할때 공격자를 전달할수있음
+    //void UseWeapon();//무기를 사용할때 공격자를 전달할수있음
 
 }
 
@@ -33,6 +33,9 @@ public class TestWeaponBase : MonoBehaviour
 
     protected WeaponStat _baseWeaponStat = new WeaponStat();
     protected WeaponStat _currentWeaponStat = new WeaponStat();
+    protected LayerMask _hitMask;
+
+
     protected int _remainBullets = 0;
     private readonly RaycastHit[] _raycastHitBuffer = new RaycastHit[32];
 
@@ -47,10 +50,10 @@ public class TestWeaponBase : MonoBehaviour
 
     // TODO[안우재](7/22) : Awake() 및 Initialize() 메서드는 호환성 문제로 무기 구축에 어느정도
     //                      무기 구축에 어느정도 틀이 잡히면 삭제 또는 수정해야함.
-    //public void Awake()
-    //{
-    //    Initialize();
-    //}
+    public void Awake()
+    {
+        _hitMask =  LayerMask.GetMask("Default","CoverWall", "Enemy", "Player");
+    }
     //public virtual void Initialize()
     //{
     //    _baseWeaponStat.Damage = 10f;
