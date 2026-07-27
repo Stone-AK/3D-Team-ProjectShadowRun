@@ -7,7 +7,7 @@ public class NetworkManager : MonoBehaviour
 
     public NetworkShopService ShopService { get; private set; }
     public NetworkStashService StashService { get; private set; }
-
+    public NetworkWeaponCustomService WeaponCustomService { get; private set; }
 
     private void Awake()
     {
@@ -26,6 +26,7 @@ public class NetworkManager : MonoBehaviour
     {
         ShopService = new NetworkShopService();
         StashService = new NetworkStashService();
+        WeaponCustomService = new NetworkWeaponCustomService();
     }
 
     private void LoadGameData()

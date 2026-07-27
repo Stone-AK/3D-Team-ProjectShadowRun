@@ -1456,6 +1456,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1432365681823841016}
   - component: {fileID: 730454823365946386}
+  - component: {fileID: 3111011214505807347}
   m_Layer: 0
   m_Name: WorkBenchObj
   m_TagString: Untagged
@@ -1502,6 +1503,18 @@ CapsuleCollider:
   m_Height: 5.8748016
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3111011214505807347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8937089600298941585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd597a91e408e8043941b9227bca2aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponCustomObj
 --- !u!1 &9183297767647250676
 GameObject:
   m_ObjectHideFlags: 0
