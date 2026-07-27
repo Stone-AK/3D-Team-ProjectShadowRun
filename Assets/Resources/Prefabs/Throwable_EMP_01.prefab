@@ -62,6 +62,9 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f594a608537fb644d9457beeb9f5f4de, type: 3}
       insertIndex: -1
+      addedObject: {fileID: -523794842802715669}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f594a608537fb644d9457beeb9f5f4de, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 5676568081638567656}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f594a608537fb644d9457beeb9f5f4de, type: 3}
       insertIndex: -1
@@ -72,6 +75,19 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: f594a608537fb644d9457beeb9f5f4de, type: 3}
   m_PrefabInstance: {fileID: 7379461233394543859}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &-523794842802715669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7685521635376517538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a15767210ba3d64eb23360725500f5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ActivateGrenade
+  _explosionEffect: {fileID: 0}
 --- !u!114 &5676568081638567656
 MonoBehaviour:
   m_ObjectHideFlags: 0

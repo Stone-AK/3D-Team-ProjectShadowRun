@@ -19,7 +19,7 @@ public class PlayerQuickSlotHandler : MonoBehaviour
         _handlers = GetComponentsInChildren<IQuickSlotConsumeHandler>();
     }
 
-    private void Start( )
+    private void OnEnable( )
     {
         if (InventoryManager.Instance != null)
         {
