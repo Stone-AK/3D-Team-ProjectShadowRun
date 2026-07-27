@@ -4,6 +4,16 @@ using UnityEngine;
 public class ActivateMedicine : MonoBehaviour, IQuickSlotConsumeHandler
 {
     private Coroutine _regenCoroutine;
+    private Coroutine _speedCoroutine;
+    private PlayerMovement _playerMovement;
+
+    public event System.Action<float> DotHealBuffChanged;
+    public event System.Action<float> SpeedBuffChanged;
+
+    private void Awake()
+    {
+        _playerMovement = GetComponent<PlayerMovement>();
+    }
 
     private void OnDisable( )
     {
@@ -12,6 +22,15 @@ public class ActivateMedicine : MonoBehaviour, IQuickSlotConsumeHandler
             StopCoroutine(_regenCoroutine);
             _regenCoroutine = null;
         }
+
+        if (_speedCoroutine != null)
+        {
+            StopCoroutine(_speedCoroutine);
+            _speedCoroutine = null;
+        }
+
+        DotHealBuffChanged?.Invoke(0f);
+        SpeedBuffChanged?.Invoke(0f);
     }
 
     public bool CanHandleType( ItemData itemData )
@@ -62,7 +81,6 @@ public class ActivateMedicine : MonoBehaviour, IQuickSlotConsumeHandler
             duration = 60f;
         }
 
-        // 지속 체력 회복 (RegenHP)
         if (itemData.TryGetParameter("RegenHP", out float totalRegen) && totalRegen > 0f)
         {
             if (_regenCoroutine != null)
@@ -72,41 +90,78 @@ public class ActivateMedicine : MonoBehaviour, IQuickSlotConsumeHandler
             _regenCoroutine = StartCoroutine(RegenRoutine(totalRegen, duration));
         }
 
-        if (itemData.TryGetParameter("IgnorePain", out float reducePain))
+        if (itemData.TryGetParameter("IgnorePain", out float temporaryHP))
         {
             if (PlayerStatus.Instance != null)
             {
-                // Todo: 진통제 사용으로 300만큼의 고통 감소 효과를 적용하는 로직을 구현해야 합니다.
+                PlayerStatus.Instance.AddTemporaryHP(temporaryHP);
             }
         }
 
         if (itemData.TryGetParameter("SpeedBoost", out float speedBoost))
         {
-            if (PlayerStatus.Instance != null)
-            {
-                //Todo: 속도 증가 효과 60을 적용하는 로직을 구현해야 합니다.
-            }
+            if (_playerMovement == null || speedBoost <= 0f)
+                return;
+
+            _playerMovement.ApplySpeedBoost(speedBoost, duration);
+
+            if (_speedCoroutine != null)
+                StopCoroutine(_speedCoroutine);
+
+            _speedCoroutine = StartCoroutine(SpeedBuffRoutine(duration));
         }
 
     }
 
     private IEnumerator RegenRoutine( float totalRegen, float duration )
     {
-         float timer = 0f;
+        float timer = 0f;
+        int previousRemainTime = -1;
 
-         while (timer < duration)
-         {
+        while (timer < duration)
+        {
             timer += Time.deltaTime;
             float tickHeal = ( totalRegen / duration ) * Time.deltaTime;
 
             if (PlayerStatus.Instance != null)
-            {
                 PlayerStatus.Instance.RecoverHP(tickHeal);
-            }
 
+            NotifyRemainTime(DotHealBuffChanged, duration - timer, ref previousRemainTime);
             yield return null;
-         }
+        }
 
+        DotHealBuffChanged?.Invoke(0f);
         _regenCoroutine = null;
+    }
+
+    private IEnumerator SpeedBuffRoutine(float duration)
+    {
+        float timer = 0f;
+        int previousRemainTime = -1;
+
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            NotifyRemainTime(SpeedBuffChanged, duration - timer, ref previousRemainTime);
+            yield return null;
+        }
+
+        SpeedBuffChanged?.Invoke(0f);
+        _speedCoroutine = null;
+    }
+
+    private void NotifyRemainTime(
+        System.Action<float> buffChanged,
+        float remainTime,
+        ref int previousRemainTime
+    )
+    {
+        int currentRemainTime = Mathf.CeilToInt(Mathf.Max(0f, remainTime));
+
+        if (currentRemainTime == previousRemainTime)
+            return;
+
+        previousRemainTime = currentRemainTime;
+        buffChanged?.Invoke(currentRemainTime);
     }
 }

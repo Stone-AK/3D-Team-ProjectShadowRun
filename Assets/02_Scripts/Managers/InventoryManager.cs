@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -55,6 +55,43 @@ public class InventoryManager : MonoBehaviour
         }
 
         Instance = this;
+    }
+
+    public void ClearInventory()
+    {
+        InventoryItems.Clear();
+
+        PlayerStatus.Instance.Model.EquippedHelmet = null;
+        PlayerStatus.Instance.Model.EquippedArmor = null;
+        PlayerStatus.Instance.Model.EquippedRig = null;
+        PlayerStatus.Instance.Model.EquippedBackpack = null;
+
+        PlayerStatus.Instance.Model.QuickSlotOne = null;
+        PlayerStatus.Instance.Model.QuickSlotTwo = null;
+        PlayerStatus.Instance.Model.QuickSlotThree = null;
+        _selectedQuickSlotIndex = -1;
+
+        OnInventoryChanged?.Invoke();
+        OnEquipmentChanged?.Invoke();
+        OnQuickSlotChanged?.Invoke();
+        OnSelectedQuickSlotChanged?.Invoke();
+    }
+
+    public void LoseHalfInventory()
+    {
+        int loseCount = InventoryItems.Count / 2;
+
+        for (int i = 0; i < loseCount; i++)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, InventoryItems.Count);
+            ItemModel lostItem = InventoryItems[randomIndex];
+
+            InventoryItems.RemoveAt(randomIndex);
+            UnregisterItemFromQuickSlots(lostItem);
+            UnregisterItemFromEquipmentSlots(lostItem);
+        }
+
+        OnInventoryChanged?.Invoke();
     }
 
     public int TryAddItem(ItemData item, int count)
@@ -430,65 +467,63 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
-    /*private bool TryUseConsumable( ItemModel stack )
-    {
-        Debug.Log($"소모품 사용 요청: {DataManager.Instance.GetItemData(stack.ItemId).Name}");
-
-        // TODO: UseItemType / UseItemParameterList 기준으로 효과 적용
-        bool removed = TryRemoveItem(stack.ItemId, 1);
-
-        if (removed)
-            OnQuickSlotChanged?.Invoke();
-
-        return removed;
-    }*/
-
-    public event Action<ItemData> OnConsumableUsed;
-    private bool TryUseConsumable( ItemModel stack )
+    private bool TryUseConsumable(ItemModel stack)
     {
         if (!IsValidStack(stack))
-        {
             return false;
-        }
 
         ItemData itemData = DataManager.Instance.GetItemData(stack.ItemId);
+
         if (itemData == null)
+            return false;
+
+        itemData.ParseUseItemParameters();
+
+        if (OnConsumableUsed == null)
+            return false;
+
+        if (itemData.UseItemType == "HealStat")
+        {
+            if (PlayerStatus.Instance.Model.CurrentHP >= PlayerStatus.Instance.Model.MaxHP)
+                return false;
+
+            if (!itemData.TryGetParameter("HealAmount", out float healAmount) || healAmount <= 0f)
+                return false;
+        }
+        else if (itemData.UseItemType == "BuffStat")
+        {
+            bool hasIgnorePain =
+                itemData.TryGetParameter("IgnorePain", out float temporaryHP) &&
+                temporaryHP > 0f;
+
+            bool hasRegenHP =
+                itemData.TryGetParameter("RegenHP", out float regenHP) &&
+                regenHP > 0f;
+
+            bool hasSpeedBoost =
+                itemData.TryGetParameter("SpeedBoost", out float speedBoost) &&
+                speedBoost > 0f;
+
+            if (!hasIgnorePain && !hasRegenHP && !hasSpeedBoost)
+                return false;
+        }
+        else
         {
             return false;
         }
 
-        Debug.Log("소모품 사용 요청: " + itemData.Name);
-
-        // 파라미터 파싱 (배열 분할)
-        itemData.ParseUseItemParameters();
-
-        // 구독자들에게 ItemData 전체 전달
-        /*if (OnConsumableUsed != null)
-        {
-            OnConsumableUsed(itemData);
-        }*/
-        OnConsumableUsed?.Invoke(itemData);
-
-        // 인벤토리 수량 차감
         bool removed = TryRemoveItem(stack.ItemId, 1);
 
-        if (removed)
-        {
-            /*if (OnQuickSlotChanged != null)
-            {
-                OnQuickSlotChanged();
-            }*/
-            OnQuickSlotChanged?.Invoke();
-        }
+        if (!removed)
+            return false;
 
-        return removed;
+        OnConsumableUsed.Invoke(itemData);
+        OnQuickSlotChanged?.Invoke();
+
+        return true;
     }
 
-    public bool TryEquipItem(int inventorySlotIndex)
-    {
-        ItemModel itemModel = GetItemModel(inventorySlotIndex);
-        return TryEquipItem(itemModel);
-    }
+    public event Action<ItemData> OnConsumableUsed;
 
     public bool TryEquipItem(int inventorySlotIndex, EquipmentSlotType targetSlotType)
     {

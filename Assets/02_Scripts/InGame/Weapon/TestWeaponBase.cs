@@ -32,6 +32,8 @@ public class TestWeaponBase : MonoBehaviour
     protected WeaponStat _baseWeaponStat = new WeaponStat();
     protected WeaponStat _currentWeaponStat = new WeaponStat();
     protected int _remainBullets = 0;
+    private readonly RaycastHit[] _raycastHitBuffer = new RaycastHit[32];
+
     public float ReloadTime => _currentWeaponStat.ReloadTime;
     public int MagazineSize => _currentWeaponStat.MagazineSize;
     public int RemainBullets => _remainBullets;
@@ -121,7 +123,7 @@ public class TestWeaponBase : MonoBehaviour
 
         Vector3 fireDirection = direction.normalized;
 
-        if (Physics.Raycast(firePosition, fireDirection, out RaycastHit hit, _currentWeaponStat.Range))
+        if (TryGetFirstValidHit(firePosition, fireDirection, out RaycastHit hit))
         {
             Debug.DrawRay(firePosition, fireDirection * hit.distance, Color.red, _currentWeaponStat.Range);
 
@@ -175,6 +177,42 @@ public class TestWeaponBase : MonoBehaviour
     protected void InvokeShotFired(ShotVisualData visualData)
     {
         ShotFired?.Invoke(visualData);
+    }
+
+    protected bool TryGetFirstValidHit(
+        Vector3 firePosition,
+        Vector3 fireDirection,
+        out RaycastHit closestHit
+    )
+    {
+        int hitCount = Physics.RaycastNonAlloc(
+            firePosition,
+            fireDirection,
+            _raycastHitBuffer,
+            _currentWeaponStat.Range
+        );
+
+        Transform ownerRoot = transform.root;
+        float closestDistance = float.MaxValue;
+        bool hasValidHit = false;
+        closestHit = default;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            RaycastHit hit = _raycastHitBuffer[i];
+
+            if (hit.transform == null || hit.transform.root == ownerRoot)
+                continue;
+
+            if (hit.distance >= closestDistance)
+                continue;
+
+            closestDistance = hit.distance;
+            closestHit = hit;
+            hasValidHit = true;
+        }
+
+        return hasValidHit;
     }
 
     public virtual int Reload(int bulletAmount)
