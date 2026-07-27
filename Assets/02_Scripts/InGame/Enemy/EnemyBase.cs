@@ -26,8 +26,12 @@ public class EnemyBase : MonoBehaviour,IDamageable,IBattleAgent
     public Transform Transform { get => this.transform; }
     public Action OnEnemyDeadAct;
     public Action OnEnemyTakeDamageAct;
-    public CoverWallInfo CurrentCoverWallInfo { get ; set ; }
+    public CoverWallInfo CurrentCoverWallInfo { get; set; }
     //public EnemyData Data { get; private set; }
+    // 상태 이상 수신용 3줄 추가
+    public float SpeedMultiplier { get; private set; } = 1f;
+    public void SetSpeedMultiplier( float multiplier ) => SpeedMultiplier = multiplier;
+    public void SetStunned( bool isStunned ) { } // 스턴 상태 확인이 필요없다면 빈 칸 유지
     public void Awake()
     {
         SetWeapon(_testWeapon);

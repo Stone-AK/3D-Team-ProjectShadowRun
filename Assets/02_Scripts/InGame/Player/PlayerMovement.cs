@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public enum PlayerPosture
 {
@@ -245,7 +245,11 @@ public class PlayerMovement : MonoBehaviour
         else
             currentSpeed = MoveSpeed;
 
-        return currentSpeed + _speedBoost;
+        // PlayerStatus에서 상태 이상으로 인한 속도 배율 가져오기
+        float statusMultiplier = ( _playerStatus != null ) ? _playerStatus.SpeedMultiplier : 1f;
+
+        // (기본 속도 + 아이템 부스트)에 상태 이상 배율을 곱해서 반환
+        return ( currentSpeed + _speedBoost ) * statusMultiplier;
     }
 
     public void ApplySpeedBoost(float amount, float duration)

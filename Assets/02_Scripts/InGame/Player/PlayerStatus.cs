@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System;
 
-public class PlayerStatus : MonoBehaviour, IDamageable
+public class PlayerStatus : MonoBehaviour, IDamageable, IStatusEffectable
 {
     public static PlayerStatus Instance { get; set; }
 
@@ -20,6 +20,10 @@ public class PlayerStatus : MonoBehaviour, IDamageable
 
     private const float TemporaryHPDecreaseInterval = 1f;
     private float _temporaryHPDecreaseTimer;
+
+    // 상태 이상 수신용 
+    public float SpeedMultiplier { get; private set; } = 1f;
+    public void SetSpeedMultiplier( float multiplier ) => SpeedMultiplier = multiplier;
 
     private void Awake()
     {
@@ -161,6 +165,7 @@ public class PlayerStatus : MonoBehaviour, IDamageable
         TemporaryHP += amount;
         TemporaryHealthChanged?.Invoke(TemporaryHP);
     }
+
 
     private void Die()
     {
