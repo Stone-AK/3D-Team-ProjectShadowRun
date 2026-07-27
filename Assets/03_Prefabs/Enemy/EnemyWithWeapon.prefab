@@ -90,17 +90,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a9601507becac7c40830257bb1880cfa, type: 3}
---- !u!114 &6666743150739601744 stripped
+--- !u!114 &1065698847443720165 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5431908267175253622, guid: a9601507becac7c40830257bb1880cfa, type: 3}
+  m_CorrespondingSourceObject: {fileID: -7409235934710187837, guid: a9601507becac7c40830257bb1880cfa, type: 3}
   m_PrefabInstance: {fileID: 1722350161749290790}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8781ff123b71b55419b9602ef124eaa5, type: 3}
+  m_Script: {fileID: 11500000, guid: 336cc452dbca28147808a1d5b181790c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TestWeaponBase
+  m_EditorClassIdentifier: Assembly-CSharp::TestTestWeaponBase
 --- !u!4 &7862752323151682987 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8861148705205678733, guid: a9601507becac7c40830257bb1880cfa, type: 3}
@@ -114,6 +114,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6276848713882654189}
     m_Modifications:
+    - target: {fileID: 696531793150215905, guid: cafb4226b82dda54997cf17c0864f57f, type: 3}
+      propertyPath: _animator
+      value: 
+      objectReference: {fileID: 6361036490464998855}
     - target: {fileID: 5191606480542518365, guid: cafb4226b82dda54997cf17c0864f57f, type: 3}
       propertyPath: _coverWallLayerMask.m_Bits
       value: 512
@@ -161,7 +165,7 @@ PrefabInstance:
     - target: {fileID: 7556976190150187342, guid: cafb4226b82dda54997cf17c0864f57f, type: 3}
       propertyPath: _testWeapon
       value: 
-      objectReference: {fileID: 6666743150739601744}
+      objectReference: {fileID: 1065698847443720165}
     - target: {fileID: 7556976190150187342, guid: cafb4226b82dda54997cf17c0864f57f, type: 3}
       propertyPath: _battleAgentTeamType
       value: 2
@@ -206,7 +210,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2516927072703754639, guid: cafb4226b82dda54997cf17c0864f57f, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -214,5 +219,10 @@ PrefabInstance:
 --- !u!4 &5893966471294974781 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8037160398357609487, guid: cafb4226b82dda54997cf17c0864f57f, type: 3}
+  m_PrefabInstance: {fileID: 4486193858432485170}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &6361036490464998855 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 7351239601129714421, guid: cafb4226b82dda54997cf17c0864f57f, type: 3}
   m_PrefabInstance: {fileID: 4486193858432485170}
   m_PrefabAsset: {fileID: 0}

@@ -1,30 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public struct ShotVisualData
-{
-    public bool HasHit;
-    public Vector3 StartPoint;
-    public Vector3 EndPoint;
-    public Vector3 HitNormal;
-    public Transform HitTransform;
-}
-
-public interface IDamageable
-{
-    void TakeDamage(float damage);//DamageInfo구조체를 만들어 전달하면 더 많은 정보를 전달할수 있음
-}
-public interface IBattleAgent
-{
-    BattleAgentTeamType Team { get; }
-    Transform Transform { get; }
-
-    bool IsDead { get; }
-    void UseWeapon();//무기를 사용할때 공격자를 전달할수있음
-
-}
-
-public class TestWeaponBase : MonoBehaviour
+public class TestTestWeaponBase : MonoBehaviour
 {
     public event System.Action<ShotVisualData> ShotFired;
 
@@ -34,83 +11,32 @@ public class TestWeaponBase : MonoBehaviour
     protected WeaponStat _baseWeaponStat = new WeaponStat();
     protected WeaponStat _currentWeaponStat = new WeaponStat();
     protected int _remainBullets = 0;
-    private readonly RaycastHit[] _raycastHitBuffer = new RaycastHit[32];
-
     public float ReloadTime => _currentWeaponStat.ReloadTime;
     public int MagazineSize => _currentWeaponStat.MagazineSize;
     public int RemainBullets => _remainBullets;
     public float AttackInterval => _currentWeaponStat.AttackInterval;
     public float Accuracy => _currentWeaponStat.Accuracy;
-    public float Range=>_currentWeaponStat.Range;
+    public float Range => _currentWeaponStat.Range;
 
     protected Dictionary<WeaponPartsType, WeaponPartsData> _weaponPartsDic = new Dictionary<WeaponPartsType, WeaponPartsData>();
 
     // TODO[안우재](7/22) : Awake() 및 Initialize() 메서드는 호환성 문제로 무기 구축에 어느정도
     //                      무기 구축에 어느정도 틀이 잡히면 삭제 또는 수정해야함.
-    //public void Awake()
-    //{
-    //    Initialize();
-    //}
-    //public virtual void Initialize()
-    //{
-    //    _baseWeaponStat.Damage = 10f;
-    //    _baseWeaponStat.AttackInterval = 1f;
-    //    _baseWeaponStat.MagazineSize = 10;
-    //    _baseWeaponStat.Accuracy = 100f;
-    //    _baseWeaponStat.Range = 10f;
-    //    _baseWeaponStat.ReloadTime = 5f;
-    //    _currentWeaponStat = _baseWeaponStat;
-    //    _remainBullets = 10;
-    //}
-
-    public virtual void Initialize(WeaponData weaponData, WeaponModel weaponModel)
+    public void Awake()
     {
-        if (weaponData == null)
-        {
-            Debug.LogError("TestWeaponBase: WeaponData가 없습니다.");
-            return;
-        }
-
-        _weaponData = weaponData;
-        _weaponModel = weaponModel;
-        _baseWeaponStat.Damage = weaponData.Damage;
-        _baseWeaponStat.AttackInterval = weaponData.AttackInterval;
-        _baseWeaponStat.MagazineSize = weaponData.MagazineSize;
-        _baseWeaponStat.Accuracy = weaponData.Accuracy;
-        _baseWeaponStat.Range = weaponData.Range;
-        _baseWeaponStat.ReloadTime = weaponData.ReloadTime;
-
-        _weaponPartsDic.Clear();
-
-        if (weaponModel?.AttachedParts != null)
-        {
-            foreach (ItemModel partModel in weaponModel.AttachedParts)
-            {
-                if (partModel == null)
-                    continue;
-
-                ItemData itemData = DataManager.Instance.GetItemData(partModel.ItemId);
-
-                if (itemData is not WeaponPartsData weaponPartData)
-                    continue;
-
-                _weaponPartsDic[weaponPartData.PartsType] = weaponPartData;
-            }
-        }
-
-        CalculateCurrentWeaponStat();
-
-
-        if (weaponModel == null)
-            _remainBullets = 0;
-        else
-            _remainBullets = weaponModel.CurrentAmmo;
-
-        if (_weaponModel != null)
-            _weaponModel.CurrentAmmo = _remainBullets;
+        Initialize();
     }
-
-    //public abstract bool CanFire { get; }
+    public virtual void Initialize()
+    {
+        _baseWeaponStat.Damage = 10f;
+        _baseWeaponStat.AttackInterval = 1f;
+        _baseWeaponStat.MagazineSize = 10;
+        _baseWeaponStat.Accuracy = 100f;
+        _baseWeaponStat.Range = 10f;
+        _baseWeaponStat.ReloadTime = 5f;
+        _currentWeaponStat = _baseWeaponStat;
+        _remainBullets = 10;
+    }
 
     public virtual void Fire(Vector3 firePosition, Vector3 direction)
     {
@@ -125,7 +51,7 @@ public class TestWeaponBase : MonoBehaviour
 
         Vector3 fireDirection = direction.normalized;
 
-        if (TryGetFirstValidHit(firePosition, fireDirection, out RaycastHit hit))
+        if (Physics.Raycast(firePosition, fireDirection, out RaycastHit hit, _currentWeaponStat.Range))
         {
             Debug.DrawRay(firePosition, fireDirection * hit.distance, Color.red, _currentWeaponStat.Range);
 
@@ -137,7 +63,7 @@ public class TestWeaponBase : MonoBehaviour
             );
 
             if (hit.transform.TryGetComponent<IDamageable>(out var damageable))
-            { 
+            {
                 Debug.Log($"명중{_remainBullets}발 남음");
                 damageable.TakeDamage(_currentWeaponStat.Damage);
             }
@@ -156,7 +82,7 @@ public class TestWeaponBase : MonoBehaviour
                 HitTransform = hit.transform
             };
 
-            InvokeShotFired(visualData);
+            ShotFired?.Invoke(visualData);
         }
         else
         {
@@ -171,50 +97,9 @@ public class TestWeaponBase : MonoBehaviour
                 HitTransform = null
             };
 
-            InvokeShotFired(visualData);
+            ShotFired?.Invoke(visualData);
         }
 
-    }
-
-    protected void InvokeShotFired(ShotVisualData visualData)
-    {
-        ShotFired?.Invoke(visualData);
-    }
-
-    protected bool TryGetFirstValidHit(
-        Vector3 firePosition,
-        Vector3 fireDirection,
-        out RaycastHit closestHit
-    )
-    {
-        int hitCount = Physics.RaycastNonAlloc(
-            firePosition,
-            fireDirection,
-            _raycastHitBuffer,
-            _currentWeaponStat.Range
-        );
-
-        Transform ownerRoot = transform.root;
-        float closestDistance = float.MaxValue;
-        bool hasValidHit = false;
-        closestHit = default;
-
-        for (int i = 0; i < hitCount; i++)
-        {
-            RaycastHit hit = _raycastHitBuffer[i];
-
-            if (hit.transform == null || hit.transform.root == ownerRoot)
-                continue;
-
-            if (hit.distance >= closestDistance)
-                continue;
-
-            closestDistance = hit.distance;
-            closestHit = hit;
-            hasValidHit = true;
-        }
-
-        return hasValidHit;
     }
 
     public virtual int Reload(int bulletAmount)
