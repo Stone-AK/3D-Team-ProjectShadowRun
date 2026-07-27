@@ -85,32 +85,13 @@ public class PlayerInventorySlotUI : MonoBehaviour,
     public void SetSelected(bool selected)
     {
         if (SelectedFrame == null)
-        {
-            Debug.LogError(
-            $"[InventorySlot] SelectedFrame이 없습니다. " +
-            $"SlotIndex: {_slotIndex}"
-        );
             return;
-        }
 
         SelectedFrame.SetActive(selected);
-
-        Debug.Log(
-        $"[InventorySlot] 선택 상태 변경 / " +
-        $"SlotIndex: {_slotIndex}, " +
-        $"Selected: {selected}, " +
-        $"FrameActive: {SelectedFrame.activeSelf}"
-    );
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log(
-        $"슬롯 진입: {_slotIndex}, " +
-        $"HasItem: {HasItem}, " +
-        $"ItemId: {_ItemModel?.ItemId ?? "NULL"}, " +
-        $"Owner: {(_owner != null)}"
-        );
         if (!HasItem)
             return;
 
@@ -124,13 +105,6 @@ public class PlayerInventorySlotUI : MonoBehaviour,
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log(
-       $"[InventorySlot] 클릭 / " +
-       $"SlotIndex: {_slotIndex}, " +
-       $"HasItem: {HasItem}, " +
-       $"Button: {eventData.button}"
-       );
-
         if (!HasItem)
             return;
 

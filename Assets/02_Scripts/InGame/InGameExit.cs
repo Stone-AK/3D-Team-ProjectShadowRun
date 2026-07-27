@@ -56,6 +56,7 @@ public class InGameExit : MonoBehaviour
 
         if (GameManager.Instance != null)
         {
+            PlayerStatus.Instance?.RestoreStatus();
             GameManager.Instance.ReturnToOutGame();
         }
         else

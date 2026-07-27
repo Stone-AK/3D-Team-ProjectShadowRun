@@ -9,17 +9,10 @@ public class NetworkShopService
     {
         if (_shopViewModel == null)
         {
-            CreateShopViewModel();
+            _shopViewModel = new ShopViewModel();
         }
 
         return _shopViewModel;
-    }
-
-    private ShopViewModel CreateShopViewModel()
-    {
-        var shopVm = new ShopViewModel();
-        _shopViewModel = shopVm;
-        return shopVm;
     }
 
     public void RefreshShopInventory()
@@ -27,10 +20,7 @@ public class NetworkShopService
         var vm = GetShopViewModel();
         int slotIndex = 0;
 
-        foreach (var slot in vm.ShopItemSlotList)
-        {
-            slot.IsSlotEmpty = true;
-        }
+        foreach (var slot in vm.ShopItemSlotList) slot.IsSlotEmpty = true;
 
         List<string> fixedItemIds = new List<string> { "Item_Medical_Bandage", "Item_Food_Water" };
         foreach (var fixedId in fixedItemIds)
@@ -41,7 +31,7 @@ public class NetworkShopService
             }
 
             var itemData = DataManager.Instance.GetItemData(fixedId);
-            if(itemData != null)
+            if (itemData != null)
             {
                 SetShopItemSlot(vm.ShopItemSlotList[slotIndex], fixedId, itemData.MaxStackCount);
                 slotIndex++;
@@ -51,7 +41,7 @@ public class NetworkShopService
         List<string> randomCandidateIds = new List<string>();
         foreach (var item in DataManager.Instance._itemDataDic.Values)
         {
-            if(fixedItemIds.Contains(item.Id))
+            if (fixedItemIds.Contains(item.Id))
             {
                 continue;
             }
@@ -68,7 +58,10 @@ public class NetworkShopService
         int addedRandomCount = 0;
         foreach (var randomId in randomCandidateIds)
         {
-            if (slotIndex >= vm.ShopItemSlotList.Count || addedRandomCount >= randomItemLimit) break;
+            if (slotIndex >= vm.ShopItemSlotList.Count || addedRandomCount >= randomItemLimit)
+            {
+                break;
+            }
 
             var itemData = DataManager.Instance.GetItemData(randomId);
             if (itemData != null)
@@ -78,8 +71,6 @@ public class NetworkShopService
                 addedRandomCount++;
             }
         }
-
-        Debug.Log("NetworkShopService: 상점 판매 목록이 새로고침 되었습니다.");
     }
 
     public void SyncPlayerInventoryToShop()
@@ -96,7 +87,6 @@ public class NetworkShopService
         LoadPlayerItemsToShopZone(activePlayerData.StashItems, vm.StashItemSlotList);
     }
 
-    // 리스트를 무작위로 섞어주는 유틸리티 메서드
     private void ShuffleList<T>(List<T> list)
     {
         for (int i = list.Count - 1; i > 0; i--)
@@ -110,46 +100,26 @@ public class NetworkShopService
 
     public void SyncDataOnClose()
     {
-        var vm = GetShopViewModel();
-
         if (PlayerStatus.Instance == null || PlayerStatus.Instance.Model == null)
         {
             return;
         }
 
-        PlayerModel activePlayerData = PlayerStatus.Instance.Model;
+        PlayerStatus.Instance.Model.CurrentCredit = GetShopViewModel().CurPlayerCredit;
 
-        activePlayerData.CurrentCredit = vm.CurPlayerCredit;
-
-        List<ItemModel> newStash = new List<ItemModel>();
-        foreach (var slot in vm.StashItemSlotList)
+        if (SaveManager.Instance != null)
         {
-            if (!slot.IsSlotEmpty)
-            {
-                newStash.Add(new ItemModel
-                {
-                    InstanceId = slot.ItemUniqueId,
-                    ItemId = slot.ItemDataId,
-                    CurrentStackCount = slot.ItemStackCount
-                });
-            }
+            SaveManager.Instance.SavePlayerData(PlayerStatus.Instance.Model);
         }
-
-        activePlayerData.StashItems = newStash;
-
-        if (SaveManager.Instance == null) return;
-
-        SaveManager.Instance.SavePlayerData(activePlayerData);
     }
 
     private void SetShopItemSlot(ShopItemSlotViewModel slot, string dataId, int count)
     {
         var itemData = DataManager.Instance.GetItemData(dataId);
-
         slot.ItemUniqueId = string.Empty;
         slot.ItemDataId = itemData.Id;
         slot.ItemStackCount = count;
-        slot.ItemSellingPrice = itemData.SellingPrice; // 구매가
+        slot.ItemSellingPrice = itemData.SellingPrice;
         slot.IsSlotEmpty = false;
     }
 
@@ -159,15 +129,18 @@ public class NetworkShopService
 
         for (int i = 0; i < savedItems.Count; i++)
         {
-            if (i >= targetSlots.Count) break;
+            if (i >= targetSlots.Count)
+            {
+                break;
+            }
 
             var savedItem = savedItems[i];
             var itemData = DataManager.Instance.GetItemData(savedItem.ItemId);
 
-            targetSlots[i].ItemUniqueId = savedItem.InstanceId; // 유저 아이템은 유니크 ID 유지
+            targetSlots[i].ItemUniqueId = savedItem.InstanceId;
             targetSlots[i].ItemDataId = savedItem.ItemId;
             targetSlots[i].ItemStackCount = savedItem.CurrentStackCount;
-            targetSlots[i].ItemSellingPrice = itemData != null ? itemData.SellingPrice : 0; // 판매가
+            targetSlots[i].ItemSellingPrice = itemData != null ? itemData.SellingPrice : 0;
             targetSlots[i].IsSlotEmpty = false;
         }
     }
@@ -185,54 +158,70 @@ public class NetworkShopService
         LoadPlayerItemsToShopZone(activePlayerData.StashItems, vm.StashItemSlotList);
     }
 
-    public int RequestBuyItem(string itemDataId, int requestCount, ShopItemSlotType targetZoneType, ShopItemSlotViewModel targetSlot = null)
+    public int RequestBuyItem(string itemDataId, int requestCount, ShopItemSlotType targetZoneType)
     {
-        if (requestCount <= 0) return 0;
+        if (requestCount <= 0)
+        {
+            return 0;
+        }
 
         var itemData = DataManager.Instance.GetItemData(itemDataId);
-        if(itemData == null) return 0;
+        if (itemData == null)
+        {
+            return 0;
+        }
 
         var vm = GetShopViewModel();
-        
         int maxAffordable = (vm.CurPlayerCredit / itemData.SellingPrice);
 
         if (maxAffordable == 0)
         {
-            Debug.LogError("크레딧이 부족합니다.");
+            Debug.LogWarning("크레딧이 부족합니다.");
             return 0;
         }
 
         int buyCount = Mathf.Min(requestCount, maxAffordable);
         int actualAddedCount = 0;
 
-        if (targetZoneType == ShopItemSlotType.Inventory)
+        if (itemData.ItemType == "Weapon" || itemData is WeaponData)
         {
-            int remain = InventoryManager.Instance.TryAddItem(itemData, buyCount);
-            actualAddedCount = buyCount - remain;
+            for (int i = 0; i < buyCount; i++)
+            {
+                WeaponModel newWeapon = new WeaponModel
+                {
+                    InstanceId = System.Guid.NewGuid().ToString(),
+                    ItemId = itemDataId,
+                    CurrentStackCount = 1,
+                    AttachedParts = new List<ItemModel>()
+                };
+
+                int leftover = NetworkManager.Inst.TransferService.PlaceItemSafely(newWeapon, targetZoneType);
+                if (leftover == 0)
+                {
+                    actualAddedCount++;
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
-        else if (targetZoneType == ShopItemSlotType.Stash && targetSlot != null)
+        else
         {
-            if (targetSlot.IsSlotEmpty)
+            ItemModel newItem = new ItemModel
             {
-                targetSlot.ItemDataId = itemDataId;
-                targetSlot.ItemUniqueId = System.Guid.NewGuid().ToString();
-                targetSlot.ItemSellingPrice = itemData.SellingPrice;
-                targetSlot.ItemStackCount = buyCount;
-                targetSlot.IsSlotEmpty = false;
-                actualAddedCount = buyCount;
-            }
-            else if (targetSlot.ItemDataId == itemDataId)
-            {
-                int maxCanAdd = itemData.MaxStackCount - targetSlot.ItemStackCount;
-                actualAddedCount = Mathf.Min(buyCount, maxCanAdd);
-                targetSlot.ItemStackCount += actualAddedCount;
-            }
+                InstanceId = System.Guid.NewGuid().ToString(),
+                ItemId = itemDataId,
+                CurrentStackCount = buyCount
+            };
+
+            int leftover = NetworkManager.Inst.TransferService.PlaceItemSafely(newItem, targetZoneType);
+            actualAddedCount = buyCount - leftover;
         }
 
         if (actualAddedCount > 0)
         {
             vm.CurPlayerCredit -= actualAddedCount * itemData.SellingPrice;
-            Debug.Log($"구매 성공! {itemData.Name} {actualAddedCount}개 구매 완료.");
         }
 
         return actualAddedCount;
@@ -241,14 +230,9 @@ public class NetworkShopService
     public void RequestSellItem(string itemDataId, int count)
     {
         if (count <= 0) return;
-
         var itemData = DataManager.Instance.GetItemData(itemDataId);
         if (itemData == null) return;
 
-        var vm = GetShopViewModel();
-
-        vm.CurPlayerCredit += itemData.SellingPrice * count;
-
-        Debug.Log($"판매 성공! {itemData.Name} {count}개 판매 (획득: {itemData.SellingPrice * count} C)");
+        GetShopViewModel().CurPlayerCredit += itemData.SellingPrice * count;
     }
 }

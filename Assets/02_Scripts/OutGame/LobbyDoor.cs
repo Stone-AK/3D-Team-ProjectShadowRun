@@ -31,6 +31,7 @@ public class LobbyDoor : MonoBehaviour
                 StopCoroutine(_teleportCoroutine);
             }
 
+            Lobby.Instance.ClearInteractableTarget();
             _teleportCoroutine = StartCoroutine(TeleportRoutine(other.gameObject));
             Debug.Log($"[{other.name}] 트리거 진입! {_waitTime}초 대기 타이머를 시작합니다.");
         }

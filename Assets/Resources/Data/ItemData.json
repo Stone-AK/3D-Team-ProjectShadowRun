@@ -124,7 +124,7 @@
     "UseItemParameterList": "",
     "Damage": 150.0,
     "MagazineSize": 5,
-    "AmmoType": "Item_Ammo_338",
+    "AmmoType": "Item_Ammo_762",
     "AttackInterval": 1.5,
     "Accuracy": 98.0,
     "Range": 300.0,
@@ -615,7 +615,7 @@
     "IconPath": "Icon/Medical_Stim",
     "PrefabPath": "Prefabs/Medical_Stim",
     "UseItemType": "BuffStat",
-    "UseItemParameterList": "SpeedBoost:60"
+    "UseItemParameterList": "SpeedBoost:3"
   },
   {
     "$type": "ItemData, Assembly-CSharp",

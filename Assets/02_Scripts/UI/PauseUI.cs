@@ -27,10 +27,12 @@ public class PauseUI : UIBase
 
     private void OnClickEmergencyEscape()
     {
-        Debug.Log("긴급 탈출: 인벤토리 아이템을 잃고 로비로 돌아갑니다.");
+        Debug.Log("긴급 탈출: 인벤토리 슬롯의 절반을 잃고 로비로 돌아갑니다.");
 
         Time.timeScale = 1f;
 
+        InventoryManager.Instance.LoseHalfInventory();
+        PlayerStatus.Instance.RestoreStatus();
 
         UIManager.Instance.ClosePauseUI();
         GameManager.Instance.ReturnToOutGame();
