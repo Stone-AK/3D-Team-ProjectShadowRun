@@ -25,9 +25,6 @@ public class PlayerStatus : MonoBehaviour, IDamageable,IBattleAgent
     public Transform Transform { get=>transform; }//IBattleAgent인터페이스 매서드
 
 
-    public event System.Action<float> HealthChanged;
-    public event System.Action<float> StaminaChanged;
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
