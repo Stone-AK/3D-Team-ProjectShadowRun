@@ -10,9 +10,9 @@ public enum BattleAgentTeamType
 
 public class EnemyBase : MonoBehaviour,IDamageable,IBattleAgent
 {
-    public TestTestWeaponBase CurrentWeapon { get; private set; }
+    public TestWeaponBase CurrentWeapon { get; private set; }
     [SerializeField] Transform _weaponSpawnPo;
-    [SerializeField] TestTestWeaponBase _testWeapon;
+    [SerializeField] TestWeaponBase _testWeapon;
     [SerializeField] BattleAgentTeamType _battleAgentTeamType;
     public Collider _enemyCollider;
     public float Hp { get; private set; } = 100;
@@ -30,14 +30,14 @@ public class EnemyBase : MonoBehaviour,IDamageable,IBattleAgent
     //public EnemyData Data { get; private set; }
     public void Awake()
     {
-        SetWeapon(_testWeapon);
+        //SetWeapon(_testWeapon);
         _enemyCollider = GetComponent<Collider>();
     }
     void Update()
     {
         Debug.DrawRay(transform.position + Vector3.up * 1f, transform.forward * 5f, Color.blue);
     }
-    public void SetWeapon(TestTestWeaponBase weapon)
+    public void SetWeapon(TestWeaponBase weapon)
     {
         CurrentWeapon = weapon;
 
@@ -59,7 +59,10 @@ public class EnemyBase : MonoBehaviour,IDamageable,IBattleAgent
         }
     }
     public void UseWeapon() { }
-    public void Initialize(EnemyData enemyData) { }
+    public void Initialize(TestWeaponBase weapon) 
+    {
+        SetWeapon(weapon);
+    }
     public void OnEnemyDead() 
     {
         Debug.Log("OnEnemyDeadAct?.Invoke");        

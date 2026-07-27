@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PlayerStatus : MonoBehaviour, IDamageable
+public class PlayerStatus : MonoBehaviour, IDamageable,IBattleAgent
 {
     public static PlayerStatus Instance { get; set; }
 
@@ -10,6 +10,11 @@ public class PlayerStatus : MonoBehaviour, IDamageable
 
     public PlayerModel Model { get; set; }
     public PlayerStatusViewModel ViewModel { get; set; }
+
+    public BattleAgentTeamType Team { get; } = BattleAgentTeamType.Player;
+    public bool IsDead { get; } = false;
+    public Transform Transform { get=>transform; }//IBattleAgent인터페이스 매서드
+
 
     public event System.Action<float> HealthChanged;
     public event System.Action<float> StaminaChanged;
@@ -107,4 +112,5 @@ public class PlayerStatus : MonoBehaviour, IDamageable
             Instance = null;
         }
     }
+
 }
