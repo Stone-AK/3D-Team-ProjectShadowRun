@@ -427,6 +427,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &687348939
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 687348940}
+  - component: {fileID: 687348941}
+  m_Layer: 0
+  m_Name: EnemyFactory
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &687348940
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 687348939}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -947.2336, y: 0.00004, z: 945.56683}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 14284011}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &687348941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 687348939}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3b62bb71888e4840bb85bc2ff7cc4b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyFactory
+  _enemyPrefabList:
+  - {fileID: 6396259497830996238, guid: cafb4226b82dda54997cf17c0864f57f, type: 3}
+  - {fileID: 5117698033440479430, guid: 3f5bcf7b515f98943b387fc9f54cbd41, type: 3}
+  _weaponPrefabList:
+  - {fileID: 4104981237188113174, guid: cc5f67cdb89206542b8774f51abaa80e, type: 3}
 --- !u!1001 &754906778
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -518,6 +567,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6091339318934815783, guid: 3e4884067e8ed774ea388194dfca4676, type: 3}
       insertIndex: -1
       addedObject: {fileID: 981071759}
+    - targetCorrespondingSourceObject: {fileID: 6091339318934815783, guid: 3e4884067e8ed774ea388194dfca4676, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 687348940}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3e4884067e8ed774ea388194dfca4676, type: 3}
 --- !u!1 &829092095
