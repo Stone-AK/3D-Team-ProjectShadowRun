@@ -8,22 +8,22 @@ public class WeaponCustomUI : UIBase
 {
     [SerializeField] private Button Button_CloseSelf;
 
-    [Header("Prefabs")]
     [SerializeField] private StashItemSlotUI Prefab_StashItemSlotUI;
     [SerializeField] private WeaponPartsSlotUI Prefab_WeaponPartsSlotUI;
 
-    [Header("Scroll View Contents")]
     [SerializeField] private Transform Transform_InventoryContent;
     [SerializeField] private Transform Transform_StashContent;
     [SerializeField] private Transform Transform_PartsContent;
 
-    [Header("Main Weapon Area")]
     [SerializeField] private Button Button_MainWeaponSlot;
     [SerializeField] private Image Image_MainWeapon;
 
     private StashItemSlotUI DragSlotUI;
     private StashItemSlotViewModel _dragSlotVm;
+
+    private ShopItemSlotType _originSlotType;
     private ItemModel _cachedHoldingItemModel;
+
     private int _heldStackCount = 0;
 
     private WeaponCustomViewModel _customVm;
@@ -171,7 +171,7 @@ public class WeaponCustomUI : UIBase
 
     private void RefreshStashUI()
     {
-        if (_customVm == null || PlayerStatus.Instance == null) return;
+        if (_customVm == null || PlayerStatus.Instance == null || PlayerStatus.Instance.Model == null) return;
         var stashItems = PlayerStatus.Instance.Model.StashItems;
         if (stashItems == null) stashItems = new List<ItemModel>();
 
@@ -264,26 +264,27 @@ public class WeaponCustomUI : UIBase
     {
         if (button != PointerEventData.InputButton.Left) return;
 
-        if (_heldStackCount == 0 && !clickedSlotVm.IsSlotEmpty)
+        if (_cachedHoldingItemModel == null && !clickedSlotVm.IsSlotEmpty)
         {
-            _cachedHoldingItemModel = NetworkManager.Inst.WeaponCustomService.PickupItemSafely(clickedSlotVm.ItemDataId, clickedSlotVm.ItemUniqueId, clickedSlotVm.SlotType);
+            _cachedHoldingItemModel = NetworkManager.Inst.TransferService.PickupItemSafely(
+                clickedSlotVm.ItemUniqueId, clickedSlotVm.ItemDataId, clickedSlotVm.SlotType);
 
             if (_cachedHoldingItemModel != null)
             {
-                _heldStackCount = _cachedHoldingItemModel.CurrentStackCount;
+                _originSlotType = clickedSlotVm.SlotType;
                 DragSlotUI.gameObject.SetActive(true);
                 _dragSlotVm.ItemDataId = _cachedHoldingItemModel.ItemId;
                 _dragSlotVm.ItemUniqueId = _cachedHoldingItemModel.InstanceId;
-                _dragSlotVm.ItemStackCount = _heldStackCount;
+                _dragSlotVm.ItemStackCount = _cachedHoldingItemModel.CurrentStackCount;
                 _dragSlotVm.IsSlotEmpty = false;
 
                 RefreshInventoryUI();
                 RefreshStashUI();
             }
         }
-        else if (_heldStackCount > 0)
+        else if (_cachedHoldingItemModel != null)
         {
-            NetworkManager.Inst.WeaponCustomService.PlaceItemSafely(_cachedHoldingItemModel, clickedSlotVm.SlotType);
+            NetworkManager.Inst.TransferService.PlaceItemSafely(_cachedHoldingItemModel, clickedSlotVm.SlotType);
             ClearCursorItem();
             RefreshInventoryUI();
             RefreshStashUI();
@@ -294,9 +295,9 @@ public class WeaponCustomUI : UIBase
 
     private void OnClick_MainWeaponSlot()
     {
-        if (_heldStackCount > 0)
+        if (_cachedHoldingItemModel != null)
         {
-            var itemData = DataManager.Instance.GetItemData(_dragSlotVm.ItemDataId);
+            var itemData = DataManager.Instance.GetItemData(_cachedHoldingItemModel.ItemId);
             if (itemData != null && itemData.ItemType == "Weapon")
             {
                 NetworkManager.Inst.WeaponCustomService.SetTargetWeapon(_cachedHoldingItemModel);
@@ -308,7 +309,7 @@ public class WeaponCustomUI : UIBase
                 Debug.LogWarning("무기만 개조대에 올릴 수 있습니다.");
             }
         }
-        else if (_heldStackCount == 0 && !string.IsNullOrEmpty(_customVm.TargetWeaponDataId))
+        else if (_cachedHoldingItemModel == null && !string.IsNullOrEmpty(_customVm.TargetWeaponDataId))
         {
             NetworkManager.Inst.WeaponCustomService.RestoreTargetWeaponToInventory();
             RefreshInventoryUI();
@@ -321,12 +322,12 @@ public class WeaponCustomUI : UIBase
     {
         if (button != PointerEventData.InputButton.Left) return;
 
-        if (_heldStackCount > 0)
+        if (_cachedHoldingItemModel != null)
         {
             bool success = NetworkManager.Inst.WeaponCustomService.TryEquipPart(clickedSlotVm, _cachedHoldingItemModel);
             if (success) ClearCursorItem();
         }
-        else if (_heldStackCount == 0 && !clickedSlotVm.IsSlotEmpty)
+        else if (_cachedHoldingItemModel == null && !clickedSlotVm.IsSlotEmpty)
         {
             NetworkManager.Inst.WeaponCustomService.UnequipPart(clickedSlotVm);
             RefreshInventoryUI();
@@ -336,10 +337,7 @@ public class WeaponCustomUI : UIBase
 
     private void ClearCursorItem()
     {
-        _heldStackCount = 0;
         _cachedHoldingItemModel = null;
-        _dragSlotVm.ItemDataId = string.Empty;
-        _dragSlotVm.ItemUniqueId = string.Empty;
         _dragSlotVm.IsSlotEmpty = true;
         DragSlotUI.gameObject.SetActive(false);
     }
@@ -348,22 +346,22 @@ public class WeaponCustomUI : UIBase
     {
         try
         {
-            // 커서에 쥐고 있는 아이템만 안전하게 반환하고, 실제 창고/무기 동기화는 Obj의 OnCancel()에 맡깁니다.
-            if (_heldStackCount > 0 && _cachedHoldingItemModel != null)
+            if (_cachedHoldingItemModel != null)
             {
-                NetworkManager.Inst.WeaponCustomService.PlaceItemSafely(_cachedHoldingItemModel, ShopItemSlotType.Inventory);
+                NetworkManager.Inst.TransferService.PlaceItemSafely(_cachedHoldingItemModel, _originSlotType);
                 ClearCursorItem();
             }
 
-            if (Lobby.Instance != null)
-                Lobby.Instance.CloseCurrentTargetUI();
-            else
-                UIManager.Instance.CloseContentUI(UIType.WeaponCustomUI);
+            NetworkManager.Inst.WeaponCustomService.RestoreTargetWeaponToInventory();
+
+            NetworkManager.Inst.WeaponCustomService.SyncDataOnClose();
+
+            if (Lobby.Instance != null) Lobby.Instance.CloseCurrentTargetUI();
+            else UIManager.Instance.CloseContentUI(UIType.WeaponCustomUI);
         }
         catch (System.Exception e)
         {
             Debug.LogError($"WeaponCustomUI 닫기 버튼 예외 발생: {e.Message}");
-            gameObject.SetActive(false);
         }
     }
 }

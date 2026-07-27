@@ -843,7 +843,7 @@ GameObject:
   - component: {fileID: 6544278749699014147}
   - component: {fileID: 3428548368858633036}
   m_Layer: 0
-  m_Name: Capsule
+  m_Name: ShopMesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
