@@ -27,6 +27,7 @@ public class EnemyStateMachine : MonoBehaviour
     public IState CurrentState { get; private set; }
 
     [SerializeField] private string _currentStatusName;
+    public LayerMask _playerLayerMask;
     public LayerMask _battleAgentLayerMask;
     public LayerMask _sightLayerMask;
     public LayerMask _shootLayerMask;
@@ -37,7 +38,7 @@ public class EnemyStateMachine : MonoBehaviour
     public IBattleAgent _targetBattleAgent;
     [HideInInspector] public Vector3 _lastDetectPosition; // 플레이어를 마지막으로 목격한 위치
 
-    public CoverWallInfo _currentCoverWallInfo;//현재 엄폐중인 위치
+    
 
     [SerializeField] private MeshRenderer _renderer;//디버깅용
 
@@ -77,19 +78,14 @@ public class EnemyStateMachine : MonoBehaviour
 
     private void Start()
     {
+        _enemyBase.OnEnemyDeadAct += EnterDeadState;
+        _enemyBase.OnEnemyTakeDamageAct += OnEnemyTakeDamage;
         // 시작 상태 지정 
         ChangeState(_idleState);
     }
 
     private void Update()
     {
-        if (_enemyBase.IsDead)
-        {
-            if (CurrentState != _deadState)
-                ChangeState(_deadState);
-
-            return;
-        }
         // 현재 활성화된 상태의 Update를 매 프레임 실행
         CurrentState?.UpdateState();
     }
@@ -143,5 +139,24 @@ public class EnemyStateMachine : MonoBehaviour
     {
         _targetBattleAgent = null;
         _targetTransform = null;
+    }
+    public void EnterDeadState() 
+    {
+        if (CurrentState != _deadState)
+        {
+            Debug.Log("deadState로 변경");
+            ChangeState(_deadState);
+        }
+    }
+    public void OnDeadAnimationFinished()
+    {
+        gameObject.SetActive(false);
+    }
+    public void OnEnemyTakeDamage() 
+    {
+        if (CurrentState == _patrolState) 
+        {
+            _patrolState.StartSearch();
+        }  
     }
 }

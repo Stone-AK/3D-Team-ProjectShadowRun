@@ -1,44 +1,15 @@
 ﻿using UnityEngine;
 
-public class StashObj : MonoBehaviour
+public class StashObj : MonoBehaviour, ILobbyInteractable
 {
-    private PlayerInputHandler InputHandler;
-
-    private KeyCode _interactKey = KeyCode.E;
-
-    private bool _isPlayerInside = false;
-    //private PlayerController _playerController; 나중에 플레이어 컨트롤러가 추가되면 주석해제. 플레이어가 상점UI를 열고있을 때 플레이어의 움직임을 막기 위함.
-
-    private void Update()
-    {
-        if (_isPlayerInside && Input.GetKeyDown(_interactKey))
-        {
-            if (UIManager.Instance.IsUIOpened(UIType.StashUI))
-            {
-                CloseStash();
-                return;
-            }
-            
-            OpenStash();
-            Debug.Log("StashObj: 창고 UI를 열었습니다.");
-        }
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (UIManager.Instance.IsUIOpened(UIType.StashUI))
-            {
-                CloseStash();
-            }
-        }
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            _isPlayerInside = true;
-            InputHandler = other.GetComponent<PlayerInputHandler>();
+            var inputHandler = other.GetComponent<PlayerInputHandler>();
             Debug.Log("StashObj: 플레이어가 창고 범위에 진입했습니다.");
+
+            Lobby.Instance.SetInteractableTarget(this, inputHandler);
         }
     }
 
@@ -47,14 +18,13 @@ public class StashObj : MonoBehaviour
         // 플레이어가 영역 밖으로 나가면 상점 닫기 및 감지 해제
         if (other.CompareTag("Player"))
         {
-            _isPlayerInside = false;
             Debug.Log("StashObj: 플레이어가 창고 범위를 벗어났습니다.");
 
-            CloseStash();
+            Lobby.Instance.ClearInteractableTarget();
         }
     }
 
-    private void OpenStash()
+    public void OnInteract()
     {
         NetworkManager.Inst.StashService.InitStashAndInventoryData();
 
@@ -63,12 +33,7 @@ public class StashObj : MonoBehaviour
 
         if (stashUI != null)
         {
-            var stashVm = NetworkManager.Inst.StashService.GetStashViewModel();
-            Debug.Log("ViewModel 바인딩 성공!");
-
-            InputHandler.SetGameplayInputBlocked(true);
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+            Debug.Log("StashObj: 창고 UI를 열었습니다. ViewModel 바인딩 성공!");
         }
         else
         {
@@ -76,13 +41,11 @@ public class StashObj : MonoBehaviour
         }
     }
 
-    private void CloseStash()
+    public void OnCancel()
     {
         NetworkManager.Inst.StashService.SyncDataOnClose();
         UIManager.Instance.CloseUI(UIRootType.ContentUI, UIType.StashUI);
 
-        InputHandler.SetGameplayInputBlocked(false);
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        Debug.Log("StashObj: 창고 UI를 닫았습니다.");
     }
 }

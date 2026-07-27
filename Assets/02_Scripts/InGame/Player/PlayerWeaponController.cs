@@ -89,6 +89,9 @@ public class PlayerWeaponController : MonoBehaviour
 
     private void StartFiring()
     {
+        if (_isReloading && IsShotgun())
+            CancelReload();
+
         _isFirePressed = true;
         FireCurrentWeapon();
     }
@@ -103,8 +106,12 @@ public class PlayerWeaponController : MonoBehaviour
         if (_currentWeaponData == null || string.IsNullOrEmpty(_currentWeaponData.Id))
             return false;
 
-        // TODO[안우재](7/22): WeaponData에 발사 방식이 추가되면 ID 판별을 FireMode 판별로 교체 필요
         return _currentWeaponData.Id.Contains("_AR_") || _currentWeaponData.Id.Contains("_SMG_");
+    }
+
+    private bool IsShotgun()
+    {
+        return _currentWeaponData != null && !string.IsNullOrEmpty(_currentWeaponData.Id) && _currentWeaponData.Id.Contains("_SG_");
     }
 
     private void FireCurrentWeapon()
@@ -172,7 +179,11 @@ public class PlayerWeaponController : MonoBehaviour
 
         _isReloading = true;
         OnReloadStateChanged?.Invoke(true);
-        _reloadCoroutine = StartCoroutine(ReloadRoutine());
+
+        if (IsShotgun())
+            _reloadCoroutine = StartCoroutine(ReloadShotgunRoutine());
+        else
+            _reloadCoroutine = StartCoroutine(ReloadRoutine());
     }
 
     private System.Collections.IEnumerator ReloadRoutine()
@@ -184,6 +195,40 @@ public class PlayerWeaponController : MonoBehaviour
         _reloadCoroutine = null;
         OnReloadStateChanged?.Invoke(false);
         NotifyAmmoChanged();
+    }
+
+    private System.Collections.IEnumerator ReloadShotgunRoutine()
+    {
+        float reloadTimePerShell = _currentWeapon.ReloadTime / _currentWeapon.MagazineSize;
+
+        while (_currentWeapon.RemainBullets < _currentWeapon.MagazineSize)
+        {
+            if (InventoryManager.Instance.GetItemCount(_currentWeaponData.AmmoType) <= 0)
+                break;
+
+            yield return new WaitForSeconds(reloadTimePerShell);
+
+            if (!InventoryManager.Instance.TryRemoveItem(_currentWeaponData.AmmoType, 1))
+                break;
+
+            _currentWeapon.Reload(1);
+            NotifyAmmoChanged();
+        }
+
+        _isReloading = false;
+        _reloadCoroutine = null;
+        OnReloadStateChanged?.Invoke(false);
+        NotifyAmmoChanged();
+    }
+
+    private void CancelReload()
+    {
+        if (_reloadCoroutine != null)
+            StopCoroutine(_reloadCoroutine);
+
+        _reloadCoroutine = null;
+        _isReloading = false;
+        OnReloadStateChanged?.Invoke(false);
     }
 
     private void CompleteReload()
@@ -221,6 +266,7 @@ public class PlayerWeaponController : MonoBehaviour
         if (selectedItem == null)
         {
             RemoveCurrentWeapon();
+            AnimeController?.SwapWeaponPosture();
             return;
         }
 
@@ -229,6 +275,7 @@ public class PlayerWeaponController : MonoBehaviour
         if (weaponData == null)
         {
             RemoveCurrentWeapon();
+            AnimeController?.SwapWeaponPosture();
             return;
         }
 

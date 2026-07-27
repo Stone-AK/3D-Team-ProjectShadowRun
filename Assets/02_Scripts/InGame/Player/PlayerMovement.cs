@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public enum PlayerPosture
 {
@@ -19,6 +19,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float SprintSpeed = 8f;
     [SerializeField] private float JumpPower = 5f;
 
+    private float _speedBoost;
+    private float _speedBoostEndTime;
+
+    public bool IsSpeedBoostActive => _speedBoost > 0f;
+    public event System.Action<bool> SpeedBoostStateChanged;
+
     [Header("Stamina")]
     [SerializeField] private float SprintStaminaUsePerSecond = 20f;
     [SerializeField] private float StaminaRecoveryPerSecond = 15f;
@@ -30,9 +36,21 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform GroundCheck;
     [SerializeField] private float GroundRadius = 0.2f;
     [SerializeField] private LayerMask GroundMask;
+    [SerializeField] private float GroundingForce = 50f;
+    [SerializeField] private float GroundingDisableDuration = 0.15f;
+    [SerializeField] private float GroundingReleaseDelay = 0.1f;
 
     private bool _isGrounded;
+    private float _groundingDisabledUntil;
+    private float _lastMoveInputTime;
     private Rigidbody _rigidbody;
+
+    [Header("Fall Damage")]
+    [SerializeField] private float SafeFallSpeed = 8f;
+    [SerializeField] private float FallDamagePerSpeed = 10f;
+
+    private bool _wasGrounded;
+    private float _maximumFallSpeed;
 
     [Header("Posture")]
     [SerializeField] private CapsuleCollider StandingCollider;
@@ -103,10 +121,14 @@ public class PlayerMovement : MonoBehaviour
         InputHandler.JumpPerformed -= Jump;
         InputHandler.CrouchPerformed -= ToggleCrouch;
         InputHandler.PronePerformed -= ToggleProne;
+
+        if (_rigidbody != null)
+            _rigidbody.useGravity = true;
     }
     private void Update()
     {
         UpdateHeadPosition();
+        UpdateSpeedBoost();
     }
 
 
@@ -115,6 +137,9 @@ public class PlayerMovement : MonoBehaviour
         Move();
         UpdatePostureCollider();
         CheckGround();
+        UpdateFallDamage();
+        ApplyGroundingForce();
+        UpdateIdleGroundHold();
     }
 
     private void CheckGround()
@@ -124,6 +149,61 @@ public class PlayerMovement : MonoBehaviour
             GroundRadius,
             GroundMask
         );
+    }
+
+    private void ApplyGroundingForce()
+    {
+        bool hasMoveInput = InputHandler.MoveInput.sqrMagnitude > 0.01f;
+
+        if (hasMoveInput)
+            _lastMoveInputTime = Time.time;
+
+        bool recentlyMoved = Time.time - _lastMoveInputTime <= GroundingReleaseDelay;
+
+        if (!_isGrounded || !recentlyMoved || Time.time < _groundingDisabledUntil)
+            return;
+
+        _rigidbody.AddForce(
+            Vector3.down * GroundingForce,
+            ForceMode.Acceleration
+        );
+    }
+
+    private void UpdateIdleGroundHold()
+    {
+        bool hasMoveInput = InputHandler.MoveInput.sqrMagnitude > 0.01f;
+        bool isJumping = Time.time < _groundingDisabledUntil;
+        bool shouldHoldPosition = _isGrounded && !hasMoveInput && !isJumping;
+
+        _rigidbody.useGravity = !shouldHoldPosition;
+
+        if (shouldHoldPosition)
+            _rigidbody.linearVelocity = Vector3.zero;
+    }
+
+    private void UpdateFallDamage()
+    {
+        if (!_isGrounded)
+        {
+            float currentFallSpeed = -_rigidbody.linearVelocity.y;
+
+            if (currentFallSpeed > _maximumFallSpeed)
+                _maximumFallSpeed = currentFallSpeed;
+        }
+        else if (!_wasGrounded)
+        {
+            float dangerousFallSpeed = _maximumFallSpeed - SafeFallSpeed;
+
+            if (dangerousFallSpeed > 0f)
+            {
+                float fallDamage = dangerousFallSpeed * FallDamagePerSpeed;
+                _playerStatus.TakeDamage(fallDamage);
+            }
+
+            _maximumFallSpeed = 0f;
+        }
+
+        _wasGrounded = _isGrounded;
     }
 
     private void Move()
@@ -151,19 +231,41 @@ public class PlayerMovement : MonoBehaviour
     private float GetCurrentMoveSpeed(bool isSprinting)
     {
         AnimeController.SetRun(isSprinting);
+
+        float currentSpeed;
+
         if (_currentPosture == PlayerPosture.Prone)
-            return ProneSpeed;
+            currentSpeed = ProneSpeed;
+        else if (_currentPosture == PlayerPosture.Crouching)
+            currentSpeed = CrouchSpeed;
+        else if (isSprinting)
+            currentSpeed = SprintSpeed;
+        else if (InputHandler.IsWalkPressed)
+            currentSpeed = WalkSpeed;
+        else
+            currentSpeed = MoveSpeed;
 
-        if (_currentPosture == PlayerPosture.Crouching)
-            return CrouchSpeed;
+        return currentSpeed + _speedBoost;
+    }
 
-        if (isSprinting)
-            return SprintSpeed;
+    public void ApplySpeedBoost(float amount, float duration)
+    {
+        if (amount <= 0f || duration <= 0f)
+            return;
 
-        if (InputHandler.IsWalkPressed)
-            return WalkSpeed;
+        _speedBoost = amount;
+        _speedBoostEndTime = Time.time + duration;
+        SpeedBoostStateChanged?.Invoke(true);
+    }
 
-        return MoveSpeed;
+    private void UpdateSpeedBoost()
+    {
+        if (!IsSpeedBoostActive || Time.time < _speedBoostEndTime)
+            return;
+
+        _speedBoost = 0f;
+        _speedBoostEndTime = 0f;
+        SpeedBoostStateChanged?.Invoke(false);
     }
 
     private void Jump()
@@ -174,10 +276,9 @@ public class PlayerMovement : MonoBehaviour
         if (_currentPosture != PlayerPosture.Standing)
             return;
 
-        _rigidbody.AddForce(
-            Vector3.up * JumpPower,
-            ForceMode.Impulse
-        );
+        _groundingDisabledUntil = Time.time + GroundingDisableDuration;
+        _rigidbody.useGravity = true;
+        _rigidbody.AddForce(Vector3.up * JumpPower, ForceMode.Impulse);
     }
 
     private Vector3 CalculateColliderCenter(float targetHeight)

@@ -171,8 +171,6 @@ public class PlayerInventoryPopUpUI : UIBase
 
         _selectedSlot = slot;
         _selectedSlot.SetSelected(true);
-
-        Debug.LogError($"[Inventory] 선택 완료 SlotIndex: {slot.SlotIndex}, ItemId: {slot.ItemModel.ItemId}");
     }
 
     public void TryUseItem(PlayerInventorySlotUI slot)
@@ -289,8 +287,6 @@ public class PlayerInventoryPopUpUI : UIBase
         CloseContextMenu();
 
         ShowDragSlot(slot.ItemModel, eventData.position);
-
-        Debug.Log($"드래그 시작: {slot.ItemModel.ItemId}");
     }
 
     public void DragSlot(PlayerInventorySlotUI slot, PointerEventData eventData)
@@ -306,8 +302,6 @@ public class PlayerInventoryPopUpUI : UIBase
         if (_draggingSlot == null)
             return;
 
-        Debug.Log($"드래그 종료: {_draggingSlot.ItemModel.ItemId}");
-
         PlayerEquipmentSlotUI equipmentSlotUI = GetEquipmentSlotUnderPointer(eventData);
 
         if (equipmentSlotUI != null && InventoryManager.Instance != null)
@@ -316,11 +310,6 @@ public class PlayerInventoryPopUpUI : UIBase
                 _draggingSlot.SlotIndex,
                 equipmentSlotUI.EquipmentType
             );
-
-            if (equipped)
-            {
-                Debug.Log($"장비 슬롯 드롭 완료: EquipmentType {equipmentSlotUI.EquipmentType}");
-            }
         }
         else
         {
@@ -332,8 +321,6 @@ public class PlayerInventoryPopUpUI : UIBase
                     _draggingSlot.SlotIndex,
                     quickSlotUI.SlotIndex
                 );
-
-                Debug.Log($"퀵슬롯 드롭 감지: QuickSlotIndex {quickSlotUI.SlotIndex}");
             }
         }
 
@@ -422,8 +409,7 @@ public class PlayerInventoryPopUpUI : UIBase
         ItemData item = DataManager.Instance.GetItemData(slot.ItemModel.ItemId);
 
         bool canUse = item.ItemType == "Consumable";
-        bool canRegisterQuickSlot =
-            (item.ItemType == "Weapon") || (item.ItemType == "Consumable");
+        bool canRegisterQuickSlot = (item.ItemType == "Weapon") || (item.ItemType == "Consumable");
 
         if (ButtonUse != null)
             ButtonUse.gameObject.SetActive(canUse);
@@ -453,9 +439,7 @@ public class PlayerInventoryPopUpUI : UIBase
         if (TextDragIconCount != null)
         {
             bool showCount = stack.CurrentStackCount > 1;
-            TextDragIconCount.text = showCount
-                ? stack.CurrentStackCount.ToString()
-                : string.Empty;
+            TextDragIconCount.text = showCount ? stack.CurrentStackCount.ToString() : string.Empty;
         }
 
         SetPanelPositionClamped(DragIconRect, screenPosition);
