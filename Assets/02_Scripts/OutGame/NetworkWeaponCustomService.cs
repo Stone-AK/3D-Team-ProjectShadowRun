@@ -46,54 +46,14 @@ public class NetworkWeaponCustomService
 
     public void SyncDataOnClose()
     {
-        var vm = GetWeaponCustomViewModel();
-        if (PlayerStatus.Instance == null || PlayerStatus.Instance.Model == null) return;
-
-        PlayerModel playerData = PlayerStatus.Instance.Model;
-        List<ItemModel> currentStash = playerData.StashItems;
-        if (currentStash == null) currentStash = new List<ItemModel>();
-
-        List<ItemModel> newStash = new List<ItemModel>();
-
-        foreach (var slotVm in vm.StashSlots)
+        if (PlayerStatus.Instance != null && PlayerStatus.Instance.Model != null)
         {
-            if (!slotVm.IsSlotEmpty)
+            if (SaveManager.Instance != null)
             {
-                ItemModel originalItem = null;
-                foreach (var stashItem in currentStash)
-                {
-                    if (!string.IsNullOrEmpty(slotVm.ItemUniqueId) && stashItem.InstanceId == slotVm.ItemUniqueId)
-                    {
-                        originalItem = stashItem;
-                        break;
-                    }
-                    else if (string.IsNullOrEmpty(slotVm.ItemUniqueId) && stashItem.ItemId == slotVm.ItemDataId)
-                    {
-                        originalItem = stashItem;
-                        break;
-                    }
-                }
-
-                if (originalItem != null)
-                {
-                    originalItem.CurrentStackCount = slotVm.ItemStackCount;
-                    newStash.Add(originalItem);
-                    currentStash.Remove(originalItem);
-                }
-                else
-                {
-                    newStash.Add(new ItemModel
-                    {
-                        InstanceId = slotVm.ItemUniqueId,
-                        ItemId = slotVm.ItemDataId,
-                        CurrentStackCount = slotVm.ItemStackCount
-                    });
-                }
+                SaveManager.Instance.SavePlayerData(PlayerStatus.Instance.Model);
+                Debug.Log("창고 및 인벤토리 데이터가 안전하게 저장되었습니다.");
             }
         }
-
-        playerData.StashItems = newStash;
-        if (SaveManager.Instance != null) SaveManager.Instance.SavePlayerData(playerData);
     }
 
     public void SetTargetWeapon(ItemModel weaponModel)

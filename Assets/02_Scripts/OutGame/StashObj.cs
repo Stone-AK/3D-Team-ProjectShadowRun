@@ -15,7 +15,6 @@ public class StashObj : MonoBehaviour, ILobbyInteractable
 
     private void OnTriggerExit(Collider other)
     {
-        // 플레이어가 영역 밖으로 나가면 상점 닫기 및 감지 해제
         if (other.CompareTag("Player"))
         {
             Debug.Log("StashObj: 플레이어가 창고 범위를 벗어났습니다.");

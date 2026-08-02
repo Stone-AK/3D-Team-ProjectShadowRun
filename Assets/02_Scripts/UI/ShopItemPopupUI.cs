@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
-public class ShopItemPopupUI : UIBase //생각해보니까 이거 그냥 인벤토리나 창고에서 돌려써도 괜찮을것 같음.
+public class ShopItemPopupUI : UIBase 
 {
     [SerializeField] private Image Image_ItemIcon;
     [SerializeField] private TMP_Text Text_ItemName;
@@ -40,10 +40,8 @@ public class ShopItemPopupUI : UIBase //생각해보니까 이거 그냥 인벤�
                 Text_ItemSellingPrice.text = $"{itemData.SellingPrice} Credit";
             }
             
-            // 화면 최상단으로 끌어올리기 (다른 UI에 가려짐 방지)
             _popupRectTransform.SetAsLastSibling();
 
-            // 켜지는 즉시 마우스 위치로 순간이동 (안 그러면 1프레임 동안 중앙에 보임)
             UpdatePopupPosition();
         }
     }

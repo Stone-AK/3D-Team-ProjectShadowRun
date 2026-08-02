@@ -14,7 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Default Local Group
   m_GUID: af2087915fdd75341b7b462871670420
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 6ceb3ab90a87b2242bdb8054282b0c1c
+    m_Address: Assets/03_Prefabs/Environment/Tileset/Tileset01/Tiie_A03.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 04d0d515e8c2dcb4ab0cdd05dd44b792, type: 2}
   m_SchemaSet:

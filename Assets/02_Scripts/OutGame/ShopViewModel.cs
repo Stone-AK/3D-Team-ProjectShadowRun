@@ -7,7 +7,7 @@ public class ShopViewModel : ViewModelBase
     public List<ShopItemSlotViewModel> InventoryItemSlotList { get; } = new List<ShopItemSlotViewModel>();
     public List<ShopItemSlotViewModel> StashItemSlotList { get; } = new List<ShopItemSlotViewModel>();
 
-    public ShopViewModel() //임시로 구현. 추후 리스트의 길이를 읽어오는 등의 처리로 바꿀 것. NetWorkService 쪽으로 빼면 될까.
+    public ShopViewModel() 
     {
         for (int i = 0; i < 10; i++) 
         { 
